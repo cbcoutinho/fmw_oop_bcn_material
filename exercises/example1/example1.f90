@@ -1,3 +1,10 @@
+#define mcheck(test,message) \
+   if (.not.(test)) then ; \
+      write(0,'(a,a,a,i10)') "Check failed in file ", __FILE__,", at line number", __LINE__  ; \
+      write(0,'(a,a)') "Cause: ", message; \
+      stop -1 ; \
+   endif   
+
 program example1
   use types
   use random_numbers
@@ -5,14 +12,15 @@ program example1
   use direct_solver
   use iterative_solver
   implicit none
-  integer (ip), parameter :: full_matrix = 0
-  integer (ip), parameter :: band_matrix = 1
-  integer (ip), parameter :: sparse_matrix =2
-  integer (ip) :: matrix_type, solver_type
-  integer (ip), parameter :: dir_solve = 0
-  integer (ip), parameter :: cg_solve  = 1
-
-  integer (ip) nz_num
+  
+  character(:), parameter :: full_matrix   = "full_matrix"
+  character(:), parameter :: band_matrix   = "band_matrix"
+  character(:), parameter :: sparse_matrix = "sparse_matrix"
+  character(:), parameter :: dir_solve     = "dir_solve"
+  character(:), parameter :: cg_solve      = "cg_solve"
+  
+  character(:), allocatable :: matrix_type, solver_type
+  integer (ip) :: nz_num
   integer (ip), allocatable :: row(:)
   integer (ip), allocatable :: col(:)
   real (rp), allocatable :: a_st(:)
@@ -23,28 +31,28 @@ program example1
 
   real (rp), allocatable :: a(:,:)
   real (rp), allocatable :: b(:)
-  real (rp) e
-  integer (ip) i
-  integer (ip) info
+  real (rp) :: e
+  integer (ip) :: i
+  integer (ip) :: info
   integer (ip), allocatable :: ipvt(:)
-  integer (ip) job
-  integer (ip) n
-  integer (ip) nx
-  integer (ip) ny
-  integer (ip) seed
+  integer (ip) :: job
+  integer (ip) :: n
+  integer (ip) :: nx
+  integer (ip) :: ny
+  integer (ip) :: seed
   real (rp), allocatable :: x1(:)
   real (rp), allocatable :: x2(:)
 
   ! Read from command line:
-  nx = 10
-  ny = 10
-  matrix_type = band_matrix
-  solver_type = dir_solve ! cg_solve
+  call read_and_check_command_line_parameters(  NX, NY, matrix_type, solver_type ) 
+
 
   ! Write information
   write ( *, '(a,i6)' ) '  Elements in X direction NX = ', nx
   write ( *, '(a,i6)' ) '  Elements in Y direction NY = ', ny
   write ( *, '(a,i6)' ) '  Number of elements = ', nx * ny
+  write ( *, '(a)' ) '  Matrix type = ', matrix_type
+  write ( *, '(a)' ) '  Solver type = ', solver_type
 
   ! Compute the number of unknowns.
   call wathen_order ( nx, ny, n )
@@ -127,5 +135,51 @@ program example1
   deallocate ( b )
   deallocate ( x1 )
   deallocate ( x2 )
+  
+contains
+
+   subroutine read_and_check_command_line_parameters(  NX, NY, matrix_type, solver_type ) 
+     implicit none
+     integer(ip)              , intent(out)   :: NX
+     integer(ip)              , intent(out)   :: NY
+     character(:), allocatable, intent(inout) :: matrix_type
+     character(:), allocatable, intent(inout) :: solver_type
+     
+     character(:), parameter :: usage_error_msg       = "Usage: example1 NX NY matrix_type solver_type"
+     character(:), parameter :: matrix_type_error_msg = "matrix_type MUST BE either [full_matrix|band_matrix|sparse_matrix]"
+     character(:), parameter :: solver_type_error_msg = "solver_type MUST BE either [dir_solve|cg_solve]"
+     character(:), parameter :: matrix_solver_type_error_msg = "matrix/solver type combination not allowed"
+     character(:), parameter :: input_output_error_msg = "Error while reading NX or NY, these should be integers!!!"
+     CHARACTER(len=256) :: arg
+     integer(ip) :: istat
+     
+     if (allocated(matrix_type)) deallocate(matrix_type)
+     if (allocated(solver_type)) deallocate(solver_type)
+     
+     ! Recall that Fortran 2003 allows the retrieval of command line 
+     ! arguments passed to the code
+     CALL get_command_argument(1, arg)
+     mcheck(len(trim(arg))>0, usage_error_msg)
+     read(arg,*,iostat=istat) NX
+     mcheck(istat==0, input_output_error_msg)
+     
+     CALL get_command_argument(2, arg)
+     mcheck(len(trim(arg))>0, usage_error_msg)
+     read(arg,*,iostat=istat) NY
+     mcheck(istat==0, input_output_error_msg)
+     
+     CALL get_command_argument(3, arg)
+     mcheck(len(trim(arg))>0, usage_error_msg)
+     mcheck(trim(arg) == full_matrix .or. trim(arg) == band_matrix .or. trim(arg) == sparse_matrix,matrix_type_error_msg)
+     matrix_type = trim(arg)
+     
+     CALL get_command_argument(4, arg)
+     mcheck(len(trim(arg))>0, usage_error_msg)
+     mcheck(trim(arg) == dir_solve .or. trim(arg) == cg_solve, solver_type_error_msg)
+     solver_type = trim(arg)
+     mcheck ( .not. (matrix_type == sparse_matrix .and. solver_type == dir_solve), matrix_solver_type_error_msg)
+     
+     
+   end subroutine read_and_check_command_line_parameters
 
 end program example1
