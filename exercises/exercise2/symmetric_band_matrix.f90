@@ -171,7 +171,7 @@ subroutine mv_pbu ( m, n, mu, a, x, b )
   return
 end subroutine mv_pbu
 
-subroutine  dpbufa ( n, mu, a, info )
+subroutine dpbufa ( n, mu, a, info )
 !*****************************************************************************80
 !
 !! PBU_FA factors an PBU matrix.
@@ -286,7 +286,7 @@ subroutine  dpbufa ( n, mu, a, info )
   return
 end subroutine dpbufa
   
-  subroutine dpbusl ( n, mu, a_lu, b )
+subroutine dpbusl ( n, mu, a_lu, b )
 !*****************************************************************************80
 !
 !! PBU_SL solves an PBU system factored by PBU_FA.
