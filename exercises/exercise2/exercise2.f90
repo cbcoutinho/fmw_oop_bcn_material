@@ -1,5 +1,5 @@
 #include "mcheck.i90"
-program example2
+program exercise2
   use types_mod
   use random_numbers_mod
   use wathen_problem_mod
@@ -81,7 +81,7 @@ contains
      character(:), allocatable, intent(inout) :: matrix_type
      character(:), allocatable, intent(inout) :: solver_type
      
-     character(:), parameter :: USAGE_ERROR_MSG       = "Usage: example2 NX NY matrix_type solver_type"
+     character(:), parameter :: USAGE_ERROR_MSG       = "Usage: exercise2 NX NY matrix_type solver_type"
      character(:), parameter :: MATRIX_SOLVER_TYPE_ERROR_MSG = "matrix/solver type combination not allowed"
      character(:), parameter :: IO_ERROR_MSG = "Error while reading NX or NY, these should be integers!!!"
      CHARACTER(len=256) :: arg
@@ -111,4 +111,4 @@ contains
      solver_type = trim(arg)
      mcheck ( .not. (matrix_type == SPARSE_MATRIX .and. solver_type == DIR_SOLVE), MATRIX_SOLVER_TYPE_ERROR_MSG)     
   end subroutine read_and_check_command_line_parameters
-end program example2
+end program exercise2

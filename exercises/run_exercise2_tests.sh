@@ -1,19 +1,19 @@
 #!/bin/bash
-PATH_TO_EXAMPLE2=build_example2/bin/example2
+PATH_TO_EXERCISE2=build_exercise2/bin/exercise2
 
 #Full matrix storage tests
 echo "*************************"
 echo "Full matrix storage tests"
 echo "*************************"
-$PATH_TO_EXAMPLE2 10 10 full_matrix dir_solve
-$PATH_TO_EXAMPLE2 10 10 full_matrix cg_solve
+$PATH_TO_EXERCISE2 10 10 full_matrix dir_solve
+$PATH_TO_EXERCISE2 10 10 full_matrix cg_solve
 
 #Band matrix storage tests
 echo "*************************"
 echo "Band matrix storage tests"
 echo "*************************"
-$PATH_TO_EXAMPLE2 10 10 band_matrix dir_solve
-$PATH_TO_EXAMPLE2 10 10 band_matrix cg_solve
+$PATH_TO_EXERCISE2 10 10 band_matrix dir_solve
+$PATH_TO_EXERCISE2 10 10 band_matrix cg_solve
 
 #Symmetric band matrix storage tests
 #TO BE ADDED AS PART OF FMW OOP EXERCICE
@@ -22,4 +22,4 @@ $PATH_TO_EXAMPLE2 10 10 band_matrix cg_solve
 echo "***************************"
 echo "Sparse matrix storage tests"
 echo "***************************"
-$PATH_TO_EXAMPLE2 10 10 sparse_matrix cg_solve
+$PATH_TO_EXERCISE2 10 10 sparse_matrix cg_solve
