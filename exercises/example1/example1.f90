@@ -1,10 +1,4 @@
-#define mcheck(test,message) \
-   if (.not.(test)) then ; \
-      write(0,'(a,a,a,i10)') "Check failed in file ", __FILE__,", at line number", __LINE__  ; \
-      write(0,'(a,a)') "Cause: ", message; \
-      stop -1 ; \
-   endif   
-
+#include "mcheck.i90"
 program example1
   use types
   use random_numbers_mod
