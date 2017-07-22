@@ -1,7 +1,10 @@
-module random_numbers
-  use types
+module random_numbers_mod
+  use types_mod
   implicit none
   private
+  
+  integer(IP), parameter :: I4_HUGE = 2147483647
+
   public :: r8_uniform_01, r8vec_uniform_01
 contains
 
@@ -13,7 +16,7 @@ contains
     !
     !  Discussion:
     !
-    !    An R8 is a real ( kind = 8 ) value.
+    !    An R8 is a real(RP) value.
     !
     !    For now, the input quantity SEED is an integer variable.
     !
@@ -75,16 +78,14 @@ contains
     !    Input/output, integer(ip) :: SEED, the "seed" value, which should
     !    NOT be 0. On output, SEED has been updated.
     !
-    !    Output, real ( kind = 8 ) R8_UNIFORM_01, a new pseudorandom variate,
+    !    Output, real(RP) R8_UNIFORM_01, a new pseudorandom variate,
     !    strictly between 0 and 1.
     !
     implicit none
-
-    integer(ip), parameter :: i4_huge = 2147483647
-    integer(ip) :: k
-    real ( kind = 8 ) r8_uniform_01
-    integer(ip) :: seed
-
+    integer(IP), intent(inout) :: seed
+    real(RP)                   :: r8_uniform_01
+    integer(IP) :: k
+    
     if ( seed == 0 ) then
        write ( *, '(a)' ) ' '
        write ( *, '(a)' ) 'R8_UNIFORM_01 - Fatal error!'
@@ -97,7 +98,7 @@ contains
     seed = 16807 * ( seed - k * 127773 ) - k * 2836
 
     if ( seed < 0 ) then
-       seed = seed + i4_huge
+       seed = seed + I4_HUGE
     end if
 
     r8_uniform_01 = real ( seed, kind = 8 ) * 4.656612875D-10
@@ -152,19 +153,19 @@ contains
     !    Input/output, integer(ip) :: SEED, the "seed" value, which
     !    should NOT be 0.  On output, SEED has been updated.
     !
-    !    Output, real ( kind = 8 ) R(M,N), the array of pseudorandom values.
+    !    Output, real(RP) R(M,N), the array of pseudorandom values.
     !
     implicit none
 
-    integer(ip) :: m
-    integer(ip) :: n
+    integer(IP), intent(in)    :: m
+    integer(IP), intent(in)    :: n
+    integer(IP), intent(inout) :: seed
+    real(RP)   , intent(out)   :: r(m,n)
 
-    integer(ip) :: i
-    integer(ip), parameter :: i4_huge = 2147483647
-    integer(ip) :: j
-    integer(ip) :: k
-    integer(ip) :: seed
-    real ( kind = 8 ) r(m,n)
+    integer(IP) :: i
+    integer(IP) :: j
+    integer(IP) :: k
+    
 
     do j = 1, n
 
@@ -175,7 +176,7 @@ contains
           seed = 16807 * ( seed - k * 127773 ) - k * 2836
 
           if ( seed < 0 ) then
-             seed = seed + i4_huge
+             seed = seed + I4_HUGE
           end if
 
           r(i,j) = real ( seed, kind = 8 ) * 4.656612875D-10
@@ -211,18 +212,18 @@ contains
     !
     !    Input, integer(ip) :: N, the number of components of the vector.
     !
-    !    Input, real ( kind = 8 ) A(N), the vector to be printed.
+    !    Input, real(RP) A(N), the vector to be printed.
     !
     !    Input, character ( len = * ) TITLE, a title.
     !
     implicit none
 
-    integer(ip) :: n
-
-    real ( kind = 8 ) a(n)
-    integer(ip) :: i
-    character ( len = * ) title
-
+    integer(IP)      , intent(in) :: n
+    real(RP)         , intent(in) :: a(n)
+    character (len=*), intent(in) :: title
+    
+    integer(IP) :: i
+    
     write ( *, '(a)' ) ' '
     write ( *, '(a)' ) trim ( title )
     write ( *, '(a)' ) ' '
@@ -280,17 +281,14 @@ contains
     !    Input/output, integer(ip) :: SEED, the "seed" value, which
     !    should NOT be 0.  On output, SEED has been updated.
     !
-    !    Output, real ( kind = 8 ) R(N), the vector of pseudorandom values.
+    !    Output, real(RP) R(N), the vector of pseudorandom values.
     !
     implicit none
-
-    integer(ip) :: n
-
-    integer(ip) :: i
-    integer(ip) :: k
-    integer(ip) :: seed
-    real ( kind = 8 ) r(n)
-
+    integer(IP), intent(in)    :: n
+    integer(IP), intent(inout) :: seed
+    real(RP)   , intent(out)   :: r(n)
+    integer(IP) :: i
+    integer(IP) :: k
     if ( seed == 0 ) then
        write ( *, '(a)' ) ' '
        write ( *, '(a)' ) 'R8VEC_UNIFORM_01 - Fatal error!'
@@ -315,4 +313,4 @@ contains
     return
   end subroutine r8vec_uniform_01
 
-end module random_numbers
+end module random_numbers_mod

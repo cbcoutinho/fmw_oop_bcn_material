@@ -1,20 +1,24 @@
-module band_matrix_names
-  use types
-  use blas_names
-  use matrix_names
+#include "mcheck.i90"
+module band_matrix_mod
+  use types_mod
+  use blas_mod
+  use matrix_mod
   implicit none
   private
 
   type, extends(matrix_t) :: band_matrix_t
      private
      real(rp), allocatable :: a(:,:)
-     integer(ip) :: ml,mu, lda
+     integer(ip) :: ml  = -1
+     integer(ip) :: mu  = -1
+     integer(ip) :: lda = -1
    contains
      procedure :: create    => band_matrix_create
      procedure :: assembly  => band_matrix_assembly
      procedure :: apply     => band_matrix_apply
      procedure :: factorize => band_matrix_factorize
      procedure :: backsolve => band_matrix_backsolve
+     procedure :: free      => band_matrix_free
   end type band_matrix_t
   public :: band_matrix_t
 
@@ -24,7 +28,10 @@ contains
     class(band_matrix_t) , intent(inout) :: this
     integer(ip)          , intent(in)    :: n
     integer(ip), optional, intent(in)    :: ml,mu,nz
+    call this%free()
     call this%set_size(n)
+    mcheck(present(ml),"ml dummy argument required by band_matrix_create")
+    mcheck(present(mu),"mu dummy argument required by band_matrix_create")
     this%ml = ml
     this%mu = mu
     this%lda = 2*ml+mu+1
@@ -50,19 +57,23 @@ contains
 
   subroutine band_matrix_factorize(this, factors, pivots) 
     implicit none
-    class(band_matrix_t)       , intent(in)    :: this
+    class(band_matrix_t)        , intent(in)    :: this
     class(matrix_t), allocatable, intent(inout) :: factors
     integer(ip)                 , intent(inout) :: pivots(:)
     integer(ip) :: info, lda
-    allocate(band_matrix_t :: factors, stat=info) ! check info/=0
+    
+    if (allocated(factors)) then
+      call factors%free()
+      deallocate(factors)
+    end if
+    
+    allocate(band_matrix_t :: factors)
     select type(factors)
     type is(band_matrix_t)
        call factors%create(this%get_size(),this%ml,this%mu)
        factors%a = this%a
        call dgbfa ( factors%a, this%lda, this%get_size(), this%ml, this%mu, pivots, info )
-       if(info/=0) then
-          write(*,*) 'Error in band factorization'
-       end if
+       mcheck(info==0, 'Error in band factorization')
     class default
     end select
   end subroutine band_matrix_factorize
@@ -76,7 +87,15 @@ contains
     call dgbsl ( this%a, this%lda, this%get_size(), this%ml, this%mu, pivots, x, 0 )
   end subroutine band_matrix_backsolve
 
-
+  subroutine band_matrix_free(this)
+    class(band_matrix_t), intent(inout) :: this
+    call this%set_size(-1)
+    this%ml = -1
+    this%mu = -1
+    this%lda = -1
+    if (allocated(this%a)) deallocate(this%a)
+  end subroutine band_matrix_free
+  
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !
 ! Legacy code
@@ -111,27 +130,27 @@ contains
     !
     !    Input, integer(ip) :: ML, MU, the lower and upper bandwidths.
     !
-    !    Input, real ( kind = 8 ) A(2*ML+MU+1,N), the matrix.
+    !    Input, real(RP) A(2*ML+MU+1,N), the matrix.
     !
-    !    Input, real ( kind = 8 ) X(N), the vector to be multiplied by A.
+    !    Input, real(RP) X(N), the vector to be multiplied by A.
     !
-    !    Output, real ( kind = 8 ) B(M), the product A * x.
+    !    Output, real(RP) B(M), the product A * x.
     !
     implicit none
 
-    integer(ip) :: m
-    integer(ip) :: ml
-    integer(ip) :: mu
-    integer(ip) :: n
-
-    real ( kind = 8 ) a(2*ml+mu+1,n)
-    real ( kind = 8 ) b(m)
-    integer(ip) :: i
-    integer(ip) :: j
-    integer(ip) :: jhi
-    integer(ip) :: jlo
-    real ( kind = 8 ) x(n)
-
+    integer(IP), intent(in)  :: m
+    integer(IP), intent(in)  :: n
+    integer(IP), intent(in)  :: ml
+    integer(IP), intent(in)  :: mu
+    real(RP)   , intent(in)  :: a(2*ml+mu+1,n)
+    real(RP)   , intent(in)  :: x(n)
+    real(RP)   , intent(out) :: b(m)
+    
+    integer(IP) :: i
+    integer(IP) :: j
+    integer(IP) :: jhi
+    integer(IP) :: jlo
+    
     b(1:m) = 0.0D+00
 
     do i = 1, n
@@ -178,7 +197,7 @@ contains
     !
     !  Parameters:
     !
-    !    Input/output, real ( kind = 8 ) ABD(LDA,N).  On input, the matrix in band
+    !    Input/output, real(RP) ABD(LDA,N).  On input, the matrix in band
     !    storage.  The columns of the matrix are stored in the columns of ABD
     !    and the diagonals of the matrix are stored in rows ML+1 through
     !    2*ML+MU+1 of ABD.  On output, an upper triangular matrix in band storage
@@ -204,28 +223,27 @@ contains
     !
     implicit none
 
-    integer(ip) :: lda
-    integer(ip) :: n
-
-    real ( kind = 8 ) abd(lda,n)
-    integer(ip) :: i
-    integer(ip) :: i0
-    integer(ip) :: info
-    integer(ip) :: ipvt(n)
-    !integer(ip) :: idamax
-    integer(ip) :: j
-    integer(ip) :: j0
-    integer(ip) :: j1
-    integer(ip) :: ju
-    integer(ip) :: jz
-    integer(ip) :: k
-    integer(ip) :: l
-    integer(ip) :: lm
-    integer(ip) :: m
-    integer(ip) :: ml
-    integer(ip) :: mm
-    integer(ip) :: mu
-    real ( kind = 8 ) t
+    real(RP)   , intent(inout) :: abd(lda,n)
+    integer(IP), intent(in)    :: lda
+    integer(IP), intent(in)    :: n
+    integer(IP), intent(out)   :: ipvt(n)
+    integer(IP), intent(out)   :: info
+    
+    integer(IP) :: i
+    integer(IP) :: i0    
+    integer(IP) :: j
+    integer(IP) :: j0
+    integer(IP) :: j1
+    integer(IP) :: ju
+    integer(IP) :: jz
+    integer(IP) :: k
+    integer(IP) :: l
+    integer(IP) :: lm
+    integer(IP) :: m
+    integer(IP) :: ml
+    integer(IP) :: mm
+    integer(IP) :: mu
+    real(RP) t
 
     m = ml + mu + 1
     info = 0
@@ -312,7 +330,7 @@ contains
     return
   end subroutine dgbfa
 
-  subroutine dgbsl ( abd, lda, n, ml, mu, ipvt, b, job )
+    subroutine dgbsl ( abd, lda, n, ml, mu, ipvt, b, job )
 
     !*****************************************************************************80
     !
@@ -363,7 +381,7 @@ contains
     !
     !  Parameters:
     !
-    !    Input, real ( kind = 8 ) ABD(LDA,N), the output from DGBCO or DGBFA.
+    !    Input, real(RP) ABD(LDA,N), the output from DGBCO or DGBFA.
     !
     !    Input, integer(ip) :: LDA, the leading dimension of the array ABD.
     !
@@ -374,7 +392,7 @@ contains
     !
     !    Input, integer(ip) :: IPVT(N), the pivot vector from DGBCO or DGBFA.
     !
-    !    Input/output, real ( kind = 8 ) B(N).  On input, the right hand side.
+    !    Input/output, real(RP) B(N).  On input, the right hand side.
     !    On output, the solution.
     !
     !    Input, integer(ip) :: JOB, job choice.
@@ -383,23 +401,23 @@ contains
     !
     implicit none
 
-    integer(ip) :: lda
-    integer(ip) :: n
-
-    real ( kind = 8 ) abd(lda,n)
-    real ( kind = 8 ) b(n)
-    integer(ip) :: ipvt(n)
-    integer(ip) :: job
-    integer(ip) :: k
-    integer(ip) :: l
-    integer(ip) :: la
-    integer(ip) :: lb
-    integer(ip) :: lm
-    integer(ip) :: m
-    integer(ip) :: ml
-    integer(ip) :: mu
-    !real ( kind = 8 ) ddot
-    real ( kind = 8 ) t
+    real(RP)   , intent(in)     :: abd(lda,n)
+    integer(IP), intent(in)    :: lda
+    integer(IP), intent(in)    :: n
+    integer(IP), intent(in)    :: ml
+    integer(IP), intent(in)    :: mu
+    integer(IP), intent(in)    :: ipvt(n)
+    real(RP)   , intent(inout) :: b(n)
+    integer(IP), intent(in)    :: job
+    
+    integer(IP) :: k
+    integer(IP) :: l
+    integer(IP) :: la
+    integer(IP) :: lb
+    integer(IP) :: lm
+    integer(IP) :: m
+    
+    real(RP) :: t
 
     m = mu + ml + 1
     !
@@ -471,7 +489,6 @@ contains
     return
   end subroutine dgbsl
   subroutine daxpy ( n, da, dx, incx, dy, incy )
-
     !*****************************************************************************80
     !
     !! DAXPY computes constant times a vector plus a vector.
@@ -514,31 +531,31 @@ contains
     !
     !    Input, integer(ip) :: N, the number of elements in DX and DY.
     !
-    !    Input, real ( kind = 8 ) DA, the multiplier of DX.
+    !    Input, real(RP) DA, the multiplier of DX.
     !
-    !    Input, real ( kind = 8 ) DX(*), the first vector.
+    !    Input, real(RP) DX(*), the first vector.
     !
     !    Input, integer(ip) :: INCX, the increment between successive 
     !    entries of DX.
     !
-    !    Input/output, real ( kind = 8 ) DY(*), the second vector.
+    !    Input/output, real(RP) DY(*), the second vector.
     !    On output, DY(*) has been replaced by DY(*) + DA * DX(*).
     !
     !    Input, integer(ip) :: INCY, the increment between successive 
     !    entries of DY.
     !
     implicit none
-
-    real ( kind = 8 ) da
-    real ( kind = 8 ) dx(*)
-    real ( kind = 8 ) dy(*)
-    integer(ip) :: i
-    integer(ip) :: incx
-    integer(ip) :: incy
-    integer(ip) :: ix
-    integer(ip) :: iy
-    integer(ip) :: m
-    integer(ip) :: n
+    integer(IP), intent(in)    :: n
+    real(RP)   , intent(in)    :: da
+    real(RP)   , intent(in)    :: dx(*)
+    integer(IP), intent(in)    :: incx
+    real(RP)   , intent(inout) :: dy(*)
+    integer(IP), intent(in)    :: incy
+    
+    integer(IP) :: i
+    integer(IP) :: ix
+    integer(IP) :: iy
+    integer(IP) :: m
 
     if ( n <= 0 ) then
        return
@@ -591,7 +608,6 @@ contains
     return
   end subroutine daxpy
   function ddot ( n, dx, incx, dy, incy )
-
     !*****************************************************************************80
     !
     !! DDOT forms the dot product of two vectors.
@@ -634,33 +650,34 @@ contains
     !
     !    Input, integer(ip) :: N, the number of entries in the vectors.
     !
-    !    Input, real ( kind = 8 ) DX(*), the first vector.
+    !    Input, real(RP) DX(*), the first vector.
     !
     !    Input, integer(ip) :: INCX, the increment between successive 
     !    entries in DX.
     !
-    !    Input, real ( kind = 8 ) DY(*), the second vector.
+    !    Input, real(RP) DY(*), the second vector.
     !
     !    Input, integer(ip) :: INCY, the increment between successive 
     !    entries in DY.
     !
-    !    Output, real ( kind = 8 ) DDOT, the sum of the product of the 
+    !    Output, real(RP) DDOT, the sum of the product of the 
     !    corresponding entries of DX and DY.
     !
     implicit none
 
-    real ( kind = 8 ) ddot
-    real ( kind = 8 ) dtemp
-    real ( kind = 8 ) dx(*)
-    real ( kind = 8 ) dy(*)
-    integer(ip) :: i
-    integer(ip) :: incx
-    integer(ip) :: incy
-    integer(ip) :: ix
-    integer(ip) :: iy
-    integer(ip) :: m
-    integer(ip) :: n
-
+    integer(IP), intent(in) :: n
+    real(RP)   , intent(in) :: dx(*)
+    integer(IP), intent(in) :: incx
+    real(RP)   , intent(in) :: dy(*)
+    integer(IP), intent(in) :: incy
+    real(RP)                :: ddot
+    
+    real(RP) :: dtemp
+    integer(IP) :: i
+    integer(IP) :: ix
+    integer(IP) :: iy
+    integer(IP) :: m
+    
     ddot = 0.0D+00
     dtemp = 0.0D+00
 
@@ -717,7 +734,6 @@ contains
     return
   end function ddot
   subroutine dscal ( n, sa, x, incx )
-
     !*****************************************************************************80
     !
     !! DSCAL scales a vector by a constant.
@@ -758,23 +774,23 @@ contains
     !
     !    Input, integer(ip) :: N, the number of entries in the vector.
     !
-    !    Input, real ( kind = 8 ) SA, the multiplier.
+    !    Input, real(RP) SA, the multiplier.
     !
-    !    Input/output, real ( kind = 8 ) X(*), the vector to be scaled.
+    !    Input/output, real(RP) X(*), the vector to be scaled.
     !
     !    Input, integer(ip) :: INCX, the increment between successive 
     !    entries of X.
     !
     implicit none
-
-    integer(ip) :: i
-    integer(ip) :: incx
-    integer(ip) :: ix
-    integer(ip) :: m
-    integer(ip) :: n
-    real ( kind = 8 ) sa
-    real ( kind = 8 ) x(*)
-
+    integer(IP), intent(in)    :: n
+    real(RP)   , intent(in)    :: sa
+    real(RP)   , intent(inout) :: x(*)
+    integer(IP), intent(in)    :: incx
+    
+    integer(IP) :: i
+    integer(IP) :: ix
+    integer(IP) :: m
+    
     if ( n <= 0 ) then
 
     else if ( incx == 1 ) then
@@ -809,4 +825,4 @@ contains
     return
   end subroutine dscal
 
-end module band_matrix_names
+end module band_matrix_mod

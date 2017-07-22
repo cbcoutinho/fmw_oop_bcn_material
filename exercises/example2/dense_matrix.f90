@@ -1,7 +1,8 @@
-module dense_matrix_names
-  use types
-  use blas_names
-  use matrix_names
+#include "mcheck.i90"
+module dense_matrix_mod
+  use types_mod
+  use blas_mod
+  use matrix_mod
   implicit none
   private
 
@@ -14,6 +15,7 @@ module dense_matrix_names
      procedure :: apply     => dense_matrix_apply
      procedure :: factorize => dense_matrix_factorize
      procedure :: backsolve => dense_matrix_backsolve
+     procedure :: free      => dense_matrix_free
   end type dense_matrix_t
   public :: dense_matrix_t
 
@@ -23,6 +25,7 @@ contains
     class(dense_matrix_t), intent(inout) :: this
     integer(ip)          , intent(in)    :: n
     integer(ip), optional, intent(in)    :: ml,mu,nz
+    call this%free()
     call this%set_size(n)
     allocate(this%a(n,n))
     this%a = 0.0_rp
@@ -41,8 +44,6 @@ contains
     class(dense_matrix_t), intent(in) :: this
     real(rp)       , intent(in)       :: x(:)
     real(rp)       , intent(inout)    :: y(:)
-    ! Any of the following lines should work
-    ! y = matmul(this%a,x)
     call mv_ge ( this%get_size(), this%get_size(), this%a, x, y )
   end subroutine dense_matrix_apply
 
@@ -52,15 +53,19 @@ contains
     class(matrix_t), allocatable, intent(inout) :: factors
     integer(ip)                 , intent(inout) :: pivots(:)
     integer(ip) :: info
-    allocate(dense_matrix_t :: factors, stat=info) ! check info/=0
+    
+    if (allocated(factors)) then
+      call factors%free()
+      deallocate(factors)
+    end if  
+    
+    allocate(dense_matrix_t :: factors)
     select type(factors)
     type is(dense_matrix_t)
        call factors%create(this%get_size())
        factors%a = this%a
        call dgefa ( factors%a, this%get_size(), this%get_size(), pivots, info )
-       if(info/=0) then
-          write(*,*) 'Error in dense factorization'
-       end if
+       mcheck(info==0,'Error in dense factorization')
     class default
     end select
   end subroutine dense_matrix_factorize
@@ -73,7 +78,13 @@ contains
     x = rhs
     call dgesl ( this%a, this%get_size(), this%get_size(), pivots, x, 0 )
   end subroutine dense_matrix_backsolve
-
+  
+  subroutine dense_matrix_free(this) 
+    class(dense_matrix_t), intent(inout) :: this
+    call this%set_size(-1)
+    if (allocated(this%a)) deallocate(this%a)
+  end subroutine dense_matrix_free
+  
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !
 ! Legacy code
@@ -117,23 +128,19 @@ contains
     !    Input, integer(ip) :: N, the number of columns of the matrix.
     !    N must be positive.
     !
-    !    Input, real ( kind = 8 ) A(M,N), the R8GE matrix.
+    !    Input, real(RP) A(M,N), the R8GE matrix.
     !
-    !    Input, real ( kind = 8 ) X(N), the vector to be multiplied by A.
+    !    Input, real(RP) X(N), the vector to be multiplied by A.
     !
-    !    Output, real ( kind = 8 ) B(M), the product A * x.
+    !    Output, real(RP) B(M), the product A * x.
     !
     implicit none
-
-    integer(ip) :: m
-    integer(ip) :: n
-
-    real ( kind = 8 ) a(m,n)
-    real ( kind = 8 ) b(m)
-    real ( kind = 8 ) x(n)
-
+    integer(IP), intent(in) :: m
+    integer(IP), intent(in) :: n
+    real(RP)   , intent(in)  :: a(m,n)
+    real(RP)   , intent(in)  :: x(n)
+    real(RP)   , intent(out) :: b(m)
     b(1:m) = matmul ( a(1:m,1:n), x(1:n) )
-
     return
   end subroutine mv_ge
 
@@ -165,7 +172,7 @@ contains
     !
     !  Parameters:
     !
-    !    Input/output, real ( kind = 8 ) A(LDA,N).
+    !    Input/output, real(RP) A(LDA,N).
     !    On intput, the matrix to be factored.
     !    On output, an upper triangular matrix and the multipliers used to obtain
     !    it.  The factorization can be written A=L*U, where L is a product of
@@ -184,18 +191,16 @@ contains
     !    Use RCOND in DGECO for a reliable indication of singularity.
     !
     implicit none
-
-    integer(ip) :: lda
-    integer(ip) :: n
-
-    real ( kind = 8 ) a(lda,n)
-    integer(ip) :: info
-    integer(ip) :: ipvt(n)
-    !integer(ip) :: idamax
-    integer(ip) :: j
-    integer(ip) :: k
-    integer(ip) :: l
-    real ( kind = 8 ) t
+    real(RP)    , intent(inout) :: a(lda,n)
+    integer(IP) , intent(in)    :: lda
+    integer(IP) , intent(in)    :: n
+    integer(IP) , intent(out)   :: ipvt(n)
+    integer(IP) , intent(out)   :: info
+    
+    integer(IP) :: j
+    integer(IP) :: k
+    integer(IP) :: l
+    real(RP)    :: t
     !
     !  Gaussian elimination with partial pivoting.
     !
@@ -291,7 +296,7 @@ contains
     !
     !  Parameters:
     !
-    !    Input, real ( kind = 8 ) A(LDA,N), the output from DGECO or DGEFA.
+    !    Input, real(RP) A(LDA,N), the output from DGECO or DGEFA.
     !
     !    Input, integer(ip) :: LDA, the leading dimension of A.
     !
@@ -299,7 +304,7 @@ contains
     !
     !    Input, integer(ip) :: IPVT(N), the pivot vector from DGECO or DGEFA.
     !
-    !    Input/output, real ( kind = 8 ) B(N).
+    !    Input/output, real(RP) B(N).
     !    On input, the right hand side vector.
     !    On output, the solution vector.
     !
@@ -308,17 +313,16 @@ contains
     !    nonzero, solve A' * X = B.
     !
     implicit none
-
-    integer(ip) :: lda
-    integer(ip) :: n
-
-    real ( kind = 8 ) a(lda,n)
-    real ( kind = 8 ) b(n)
-    integer(ip) :: ipvt(n)
-    integer(ip) :: job
-    integer(ip) :: k
-    integer(ip) :: l
-    real ( kind = 8 ) t
+    real(RP)   , intent(in)    :: a(lda,n)
+    integer(IP), intent(in)    :: lda
+    integer(IP), intent(in)    :: n
+    integer(IP), intent(in)    :: ipvt(n)
+    real(RP)   , intent(inout) :: b(n)
+    integer(IP), intent(in)    :: job
+    
+    integer(IP) :: k
+    integer(IP) :: l
+    real(RP)    :: t
     !
     !  Solve A * X = B.
     !
@@ -371,4 +375,4 @@ contains
     return
   end subroutine dgesl
 
-end module dense_matrix_names
+end module dense_matrix_mod

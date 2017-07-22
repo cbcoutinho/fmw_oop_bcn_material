@@ -1,6 +1,6 @@
-module blas_names
+module blas_mod
 ! Implementation or interfaces to BLAS functions
-  use types
+  use types_mod
   implicit none
   private 
   public :: idamax
@@ -49,7 +49,7 @@ contains
     !
     !    Input, integer(ip) :: N, the number of entries in the vector.
     !
-    !    Input, real ( kind = 8 ) X(*), the vector to be examined.
+    !    Input, real(RP) DX(*), the vector to be examined.
     !
     !    Input, integer(ip) :: INCX, the increment between successive 
     !    entries of SX.
@@ -59,13 +59,14 @@ contains
     !
     implicit none
 
-    real (rp) dmax
-    real (rp) dx(*)
-    integer(ip) :: i
-    integer(ip) :: idamax
-    integer(ip) :: incx
-    integer(ip) :: ix
-    integer(ip) :: n
+    integer(IP), intent(in) :: n
+    real(RP)   , intent(in) :: dx(*)
+    integer(IP), intent(in) :: incx
+    integer(IP)             :: idamax
+    
+    real(RP) :: dmax
+    integer(IP) :: i
+    integer(IP) :: ix
 
     idamax = 0
 
@@ -109,4 +110,4 @@ contains
     return
   end function idamax
 
-end module blas_names
+end module blas_mod

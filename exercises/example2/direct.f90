@@ -1,7 +1,8 @@
-module direct_solver_names
-  use types
-  use matrix_names
-  use solver_names
+#include "mcheck.i90"
+module direct_solver_mod
+  use types_mod
+  use matrix_mod
+  use solver_mod
   implicit none
   private
 
@@ -12,7 +13,8 @@ module direct_solver_names
      real(rp)       , allocatable :: work(:)
    contains
      procedure  :: create => direct_solver_create
-     procedure  :: apply  => direct_solver_apply
+     procedure  :: solve  => direct_solver_solve
+     procedure  :: free   => direct_solver_free
   end type direct_solver_t
 
   public :: direct_solver_t
@@ -26,26 +28,27 @@ contains
     allocate(this%pivots(matrix%get_size()))
     allocate(this%work(matrix%get_size()))
     call matrix%factorize(this%factors,this%pivots)
+    call this%set_matrix(matrix)
   end subroutine direct_solver_create
 
-  subroutine direct_solver_apply(this,matrix,rhs,x) 
+  subroutine direct_solver_solve(this,rhs,x) 
     implicit none
     class(direct_solver_t), intent(inout) :: this
-    class(matrix_t)       , intent(in)    :: matrix
     real(rp)              , intent(in)    :: rhs(:)
     real(rp)              , intent(inout) :: x(:)
-    real(rp)              , allocatable   :: y(:)
-    if(this%factors%get_size()/=matrix%get_size()) then
-       ! Write an error message
-    else
-       ! The algorithm will work
-    end if
     call this%factors%backsolve(this%pivots,rhs,x)
-    ! Check the solution
-    call matrix%apply(x,this%work)
-    if(maxval(abs(this%work-rhs))>=1.0e-8_rp) then
-       ! write an error message and stop
-    end if
-  end subroutine direct_solver_apply
+  end subroutine direct_solver_solve
   
-end module direct_solver_names
+  subroutine direct_solver_free(this) 
+    implicit none
+    class(direct_solver_t), intent(inout) :: this
+    if (allocated(this%factors)) then
+      call this%factors%free()
+      deallocate(this%factors)
+    end if
+    if (allocated(this%pivots)) deallocate(this%pivots)
+    if (allocated(this%work)) deallocate(this%work)
+    call this%nullify_matrix()
+  end subroutine direct_solver_free
+  
+end module direct_solver_mod

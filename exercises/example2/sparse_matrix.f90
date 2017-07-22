@@ -1,21 +1,24 @@
-module sparse_matrix_names
-  use types
-  use blas_names
-  use matrix_names
+#include "mcheck.i90"
+module sparse_matrix_mod
+  use types_mod
+  use blas_mod
+  use matrix_mod
   implicit none
   private
 
   type, extends(matrix_t) :: sparse_matrix_t
      private
-     integer(ip) :: nz, k
+     integer(ip) :: nz      = -1
+     integer(ip) :: cursor  = -1
      integer(ip), allocatable :: row(:), col(:)
-     real(rp)   , allocatable :: a(:)
+     real(rp), allocatable :: a(:)
    contains
      procedure :: create    => sparse_matrix_create
      procedure :: assembly  => sparse_matrix_assembly
      procedure :: apply     => sparse_matrix_apply
      procedure :: factorize => sparse_matrix_factorize
      procedure :: backsolve => sparse_matrix_backsolve
+     procedure :: free      => sparse_matrix_free
   end type sparse_matrix_t
   public :: sparse_matrix_t
 
@@ -23,15 +26,17 @@ contains
  
   subroutine sparse_matrix_create(this,n,ml,mu,nz)
     class(sparse_matrix_t), intent(inout) :: this
-    integer(ip)          , intent(in)    :: n
-    integer(ip), optional, intent(in)    :: ml,mu,nz
+    integer(ip)           , intent(in)    :: n
+    integer(ip), optional , intent(in)    :: ml,mu,nz
+    call this%free()
     call this%set_size(n)
+    mcheck(present(nz),"nz dummy argument required by sparse_matrix_create")
     this%nz = nz
     allocate ( this%row(1:this%nz) )
     allocate ( this%col(1:this%nz) )
     allocate ( this%a(1:this%nz) )
     this%a = 0.0_rp
-    this%k = 0
+    this%cursor = 1
   end subroutine sparse_matrix_create
 
   subroutine sparse_matrix_assembly(this,i,j,a) 
@@ -39,10 +44,11 @@ contains
     class(sparse_matrix_t), intent(inout) :: this
     integer(ip)           , intent(in)    :: i,j
     real(rp)              , intent(in)    :: a
-    this%k = this%k + 1
-    this%row(this%k) = i
-    this%col(this%k) = j
-    this%a(this%k)   = a
+    mcheck(this%cursor <= this%nz,"Already inserted more nonzero entries than allocated in sparse_matrix_t")
+    this%row(this%cursor) = i
+    this%col(this%cursor) = j
+    this%a(this%cursor)   = a
+    this%cursor = this%cursor + 1
   end subroutine sparse_matrix_assembly
 
   subroutine sparse_matrix_apply(this,x,y) 
@@ -69,6 +75,16 @@ contains
     write(*,*) 'Sparse matrix backsolve not implemented'
   end subroutine sparse_matrix_backsolve
 
+  subroutine sparse_matrix_free(this) 
+    class(sparse_matrix_t), intent(inout)    :: this
+    call this%set_size(-1)
+    this%nz = -1
+    this%cursor = -1
+    if (allocated(this%row)) deallocate(this%row) 
+    if (allocated(this%col)) deallocate(this%col)
+    if (allocated(this%a)) deallocate(this%a)
+  end subroutine sparse_matrix_free
+  
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !
 ! Legacy code
@@ -102,24 +118,24 @@ contains
     !    Input, integer(ip) :: ROW(NZ_NUM), COL(NZ_NUM), the row and 
     !    column indices.
     !
-    !    Input, real ( kind = 8 ) A(NZ_NUM), the nonzero values in the matrix.
+    !    Input, real(RP) A(NZ_NUM), the nonzero values in the matrix.
     !
-    !    Input, real ( kind = 8 ) X(N), the vector to be multiplied.
+    !    Input, real(RP) X(N), the vector to be multiplied.
     !
-    !    Output, real ( kind = 8 ) B(M), the product A*X.
+    !    Output, real(RP) B(M), the product A*X.
     !
     implicit none
 
-    integer(ip) :: m
-    integer(ip) :: n
-    integer(ip) :: nz_num
-
-    real ( kind = 8 ) a(nz_num)
-    real ( kind = 8 ) b(m)
-    integer(ip) :: col(nz_num)
-    integer(ip) :: k
-    integer(ip) :: row(nz_num)
-    real ( kind = 8 ) x(n)
+    integer(IP), intent(in)  :: m
+    integer(IP), intent(in)  :: n
+    integer(IP), intent(in)  :: nz_num
+    integer(IP), intent(in)  :: row(nz_num)
+    integer(IP), intent(in)  :: col(nz_num)
+    real(RP)   , intent(in)  :: a(nz_num)
+    real(RP)   , intent(out) :: b(m)
+    
+    integer(IP) :: k
+    real(RP) :: x(n)
 
     b(1:m) = 0.0D+00
     do k = 1, nz_num
@@ -130,4 +146,4 @@ contains
   end subroutine mv_st
 
 
-end module sparse_matrix_names
+end module sparse_matrix_mod

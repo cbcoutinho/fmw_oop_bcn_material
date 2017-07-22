@@ -1,12 +1,25 @@
-module wathen_problem_names
-  use types
-  use random_numbers
-  use matrix_names
+module wathen_problem_mod
+  use types_mod
+  use random_numbers_mod
+  use matrix_mod
   implicit none
   private
+  
+  real(RP), parameter :: EM(8,8) =  reshape ( [ &
+         6.0, -6.0,  2.0, -8.0,  3.0, -8.0,  2.0, -6.0, &
+         -6.0, 32.0, -6.0, 20.0, -8.0, 16.0, -8.0, 20.0, &
+         2.0, -6.0,  6.0, -6.0,  2.0, -8.0,  3.0, -8.0, &
+         -8.0, 20.0, -6.0, 32.0, -6.0, 20.0, -8.0, 16.0, &
+         3.0, -8.0,  2.0, -6.0,  6.0, -6.0,  2.0, -8.0, &
+         -8.0, 16.0, -8.0, 20.0, -6.0, 32.0, -6.0, 20.0, &
+         2.0, -8.0,  3.0, -8.0,  2.0, -6.0,  6.0, -6.0, &
+         -6.0, 20.0, -8.0, 16.0, -8.0, 20.0, -6.0, 32.0 ], &
+         [8, 8] )
+  
+  
   type wathen_problem_t
     private
-    integer(ip) :: nx,ny
+    integer(IP) :: nx,ny
     contains
     procedure :: setup    => wathen_setup
     procedure :: assembly => wathen_fill
@@ -17,11 +30,11 @@ contains
 
   subroutine wathen_setup( this,nx,ny, n, a )
     class(wathen_problem_t), intent(inout) :: this
-    integer(ip)    , intent(in)    :: nx
-    integer(ip)    , intent(in)    :: ny
-    integer(ip)    , intent(out)   :: n
+    integer(IP)    , intent(in)    :: nx
+    integer(IP)    , intent(in)    :: ny
+    integer(IP)    , intent(out)   :: n
     class(matrix_t), intent(inout) :: a
-    integer(ip) :: ml,md,mu,nz
+    integer(IP) :: ml,md,mu,nz
     this%nx = nx
     this%ny = ny
     call wathen_order ( nx, ny, n )
@@ -39,8 +52,8 @@ contains
     !
     implicit none
     class(wathen_problem_t), intent(inout) :: this
-    integer(ip)    , intent(in)    :: seed
-    class(matrix_t), intent(inout) :: a
+    integer(IP)            , intent(inout) :: seed
+    class(matrix_t)        , intent(inout) :: a
 
     ! Esta mierda hay que hacerla bien!!!
     real ( kind = 8 ), dimension ( 8, 8 ), save :: em =  reshape ( (/ &
@@ -53,11 +66,11 @@ contains
          2.0, -8.0,  3.0, -8.0,  2.0, -6.0,  6.0, -6.0, &
          -6.0, 20.0, -8.0, 16.0, -8.0, 20.0, -6.0, 32.0 /), &
          (/ 8, 8 /) )
-    integer(ip) :: i
-    integer(ip) :: j
-    integer(ip) :: kcol
-    integer(ip) :: krow
-    integer(ip) :: node(8)
+    integer(IP) :: i
+    integer(IP) :: j
+    integer(IP) :: kcol
+    integer(IP) :: krow
+    integer(IP) :: node(8)
     !real ( kind = 8 ) r8_uniform_01
     real ( kind = 8 ) rho
 
@@ -137,20 +150,16 @@ contains
     !    bandwidths of the matrix,
     !
     implicit none
-
-    integer(ip) :: d
-    integer(ip) :: l
-    integer(ip) :: nx
-    integer(ip) :: ny
-    integer(ip) :: u
-
+    integer(IP), intent(in)  :: nx
+    integer(IP), intent(in)  :: ny
+    integer(IP), intent(out) :: l
+    integer(IP), intent(out) :: d
+    integer(IP), intent(out) :: u
     l = 3 * nx + 4
     d = 1
     u = 3 * nx + 4
-
     return
   end subroutine wathen_bandwidth
-  
   subroutine wathen_gb ( nx, ny, n, seed, a )
 
     !*****************************************************************************80
@@ -234,37 +243,25 @@ contains
     !
     !    Input/output, integer(ip) :: SEED, the random number seed.
     !
-    !    Output, real ( kind = 8 ) A(9*NX+13,N), the matrix.
+    !    Output, real(RP) A(9*NX+13,N), the matrix.
     !
     implicit none
-
-    integer(ip) :: n
-    integer(ip) :: nx
-    integer(ip) :: ny
-
-    real ( kind = 8 ) a(9*nx+13,n)
-    real ( kind = 8 ), dimension ( 8, 8 ), save :: em =  reshape ( (/ &
-         6.0, -6.0,  2.0, -8.0,  3.0, -8.0,  2.0, -6.0, &
-         -6.0, 32.0, -6.0, 20.0, -8.0, 16.0, -8.0, 20.0, &
-         2.0, -6.0,  6.0, -6.0,  2.0, -8.0,  3.0, -8.0, &
-         -8.0, 20.0, -6.0, 32.0, -6.0, 20.0, -8.0, 16.0, &
-         3.0, -8.0,  2.0, -6.0,  6.0, -6.0,  2.0, -8.0, &
-         -8.0, 16.0, -8.0, 20.0, -6.0, 32.0, -6.0, 20.0, &
-         2.0, -8.0,  3.0, -8.0,  2.0, -6.0,  6.0, -6.0, &
-         -6.0, 20.0, -8.0, 16.0, -8.0, 20.0, -6.0, 32.0 /), &
-         (/ 8, 8 /) )
-    integer(ip) :: i
-    integer(ip) :: ii
-    integer(ip) :: j
-    integer(ip) :: jj
-    integer(ip) :: kcol
-    integer(ip) :: krow
-    integer(ip) :: ml
-    integer(ip) :: mu
-    integer(ip) :: node(8)
-    !real ( kind = 8 ) r8_uniform_01
-    real ( kind = 8 ) rho
-    integer(ip) :: seed
+    integer(IP), intent(in)    :: nx
+    integer(IP), intent(in)    :: ny
+    integer(IP), intent(in)    :: n
+    integer(IP), intent(inout) :: seed
+    real(RP)   , intent(out)   :: a(9*nx+13,n)
+    integer(IP) :: i
+    integer(IP) :: ii
+    integer(IP) :: j
+    integer(IP) :: jj
+    integer(IP) :: kcol
+    integer(IP) :: krow
+    integer(IP) :: ml
+    integer(IP) :: mu
+    integer(IP) :: node(8)
+    real(RP) :: rho
+    
 
     ml = 3 * nx + 4
     mu = 3 * nx + 4
@@ -290,7 +287,7 @@ contains
                 ii = node(krow);
                 jj = node(kcol);
                 a(ii-jj+ml+mu+1,jj) = a(ii-jj+ml+mu+1,jj) &
-                     + rho * em(krow,kcol)
+                     + rho * EM(krow,kcol)
              end do
           end do
 
@@ -382,34 +379,22 @@ contains
     !
     !    Input/output, integer(ip) :: SEED, the random number seed.
     !
-    !    Output, real ( kind = 8 ) A(N,N), the matrix.
+    !    Output, real(RP) A(N,N), the matrix.
     !
     implicit none
-
-    integer(ip) :: n
-    integer(ip) :: nx
-    integer(ip) :: ny
-
-    real ( kind = 8 ) a(n,n)
-    real ( kind = 8 ), dimension ( 8, 8 ), save :: em =  reshape ( (/ &
-         6.0, -6.0,  2.0, -8.0,  3.0, -8.0,  2.0, -6.0, &
-         -6.0, 32.0, -6.0, 20.0, -8.0, 16.0, -8.0, 20.0, &
-         2.0, -6.0,  6.0, -6.0,  2.0, -8.0,  3.0, -8.0, &
-         -8.0, 20.0, -6.0, 32.0, -6.0, 20.0, -8.0, 16.0, &
-         3.0, -8.0,  2.0, -6.0,  6.0, -6.0,  2.0, -8.0, &
-         -8.0, 16.0, -8.0, 20.0, -6.0, 32.0, -6.0, 20.0, &
-         2.0, -8.0,  3.0, -8.0,  2.0, -6.0,  6.0, -6.0, &
-         -6.0, 20.0, -8.0, 16.0, -8.0, 20.0, -6.0, 32.0 /), &
-         (/ 8, 8 /) )
-    integer(ip) :: i
-    integer(ip) :: j
-    integer(ip) :: kcol
-    integer(ip) :: krow
-    integer(ip) :: node(8)
-    !real ( kind = 8 ) r8_uniform_01
-    real ( kind = 8 ) rho
-    integer(ip) :: seed
-
+    integer(IP), intent(in)    :: nx
+    integer(IP), intent(in)    :: ny
+    integer(IP), intent(in)    :: n
+    integer(IP), intent(inout) :: seed
+    real(RP)   , intent(out)   :: a(n,n)
+    
+    integer(IP) :: i
+    integer(IP) :: j
+    integer(IP) :: kcol
+    integer(IP) :: krow
+    integer(IP) :: node(8)
+    real(RP) :: rho
+    
     a(1:n,1:n) = 0.0D+00
 
     do j = 1, ny
@@ -429,7 +414,7 @@ contains
           do krow = 1, 8
              do kcol = 1, 8
                 a(node(krow),node(kcol)) = a(node(krow),node(kcol)) &
-                     + rho * em(krow,kcol)
+                     + rho * EM(krow,kcol)
              end do
           end do
 
@@ -481,12 +466,11 @@ contains
     !
     implicit none
 
-    integer(ip) :: n
-    integer(ip) :: nx
-    integer(ip) :: ny
-
+    
+    integer(IP), intent(in)  :: nx
+    integer(IP), intent(in)  :: ny
+    integer(IP), intent(out) :: n
     n = 3 * nx * ny + 2 * nx + 2 * ny + 1
-
     return
   end subroutine wathen_order
   subroutine wathen_st ( nx, ny, nz_num, seed, row, col, a )
@@ -581,46 +565,33 @@ contains
     !    Output, integer(ip) :: ROW(NZ_NUM), COL(NZ_NUM), the row and 
     !    column indices of the nonzero entries.
     !
-    !    Output, real ( kind = 8 ) A(NZ_NUM), the nonzero entries of the matrix.
+    !    Output, real(RP) A(NZ_NUM), the nonzero entries of the matrix.
     !
     implicit none
 
-    integer(ip) :: nx
-    integer(ip) :: ny
-    integer(ip) :: nz_num
-
-    real ( kind = 8 ) a(nz_num)
-    integer(ip) :: col(nz_num)
-    real ( kind = 8 ), dimension ( 8, 8 ), save :: em =  reshape ( (/ &
-         6.0, -6.0,  2.0, -8.0,  3.0, -8.0,  2.0, -6.0, &
-         -6.0, 32.0, -6.0, 20.0, -8.0, 16.0, -8.0, 20.0, &
-         2.0, -6.0,  6.0, -6.0,  2.0, -8.0,  3.0, -8.0, &
-         -8.0, 20.0, -6.0, 32.0, -6.0, 20.0, -8.0, 16.0, &
-         3.0, -8.0,  2.0, -6.0,  6.0, -6.0,  2.0, -8.0, &
-         -8.0, 16.0, -8.0, 20.0, -6.0, 32.0, -6.0, 20.0, &
-         2.0, -8.0,  3.0, -8.0,  2.0, -6.0,  6.0, -6.0, &
-         -6.0, 20.0, -8.0, 16.0, -8.0, 20.0, -6.0, 32.0 /), &
-         (/ 8, 8 /) )
-    integer(ip) :: i
-    integer(ip) :: j
-    integer(ip) :: k
-    integer(ip) :: kcol
-    integer(ip) :: krow
-    integer(ip) :: node(8)
-    !real ( kind = 8 ) r8_uniform_01
-    real ( kind = 8 ) rho
-    integer(ip) :: row(nz_num)
-    integer(ip) :: seed
-
+    integer(IP), intent(in)    :: nx
+    integer(IP), intent(in)    :: ny
+    integer(IP), intent(in)    :: nz_num
+    integer(IP), intent(inout) :: seed
+    integer(IP), intent(out)   :: row(nz_num)
+    integer(IP), intent(out)   :: col(nz_num)
+    real(RP)   , intent(out)   :: a(nz_num)
+    
+    integer(IP) :: i
+    integer(IP) :: j
+    integer(IP) :: k
+    integer(IP) :: kcol
+    integer(IP) :: krow
+    integer(IP) :: node(8)
+    real(RP) :: rho
+    
     row(1:nz_num) = 0
     col(1:nz_num) = 0
     a(1:nz_num) = 0.0D+00
 
     k = 0
-
     do j = 1, ny
        do i = 1, nx
-
           node(1) = 3 * j * nx + 2 * j + 2 * i + 1
           node(2) = node(1) - 1
           node(3) = node(1) - 2
@@ -631,16 +602,14 @@ contains
           node(8) = node(4) + 1
 
           rho = 100.0D+00 * r8_uniform_01 ( seed )
-
           do krow = 1, 8
              do kcol = 1, 8
                 k = k + 1
                 row(k) = node(krow)
                 col(k) = node(kcol)
-                a(k) = rho * em(krow,kcol)
+                a(k) = rho * EM(krow,kcol)
              end do
           end do
-
        end do
     end do
 
@@ -684,15 +653,11 @@ contains
     !    the matrix.
     !
     implicit none
-
-    integer(ip) :: nx
-    integer(ip) :: ny
-    integer(ip) :: nz_num
-
+    integer(IP), intent(in)  :: nx
+    integer(IP), intent(in)  :: ny
+    integer(IP), intent(out) :: nz_num
     nz_num = nx * ny * 64
-
     return
   end subroutine wathen_st_size
-
-end module wathen_problem_names
+end module wathen_problem_mod
 
