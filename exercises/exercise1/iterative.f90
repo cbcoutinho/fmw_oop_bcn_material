@@ -618,38 +618,38 @@ contains
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) N, the order of the matrix.
+!    Input, integer(IP) N, the order of the matrix.
 !    N must be positive.
 !
-!    Input, integer ( kind = 4 ) MU, the number of superdiagonals.
+!    Input, integer(IP) MU, the number of superdiagonals.
 !    MU must be at least 0, and no more than N-1.
 !
-!    Input, real ( kind = 8 ) A(MU+1,N), the PBU matrix.
+!    Input, real(RP) A(MU+1,N), the PBU matrix.
 !
-!    Input, real ( kind = 8 ) B(N), the right hand side vector.
+!    Input, real(RP) B(N), the right hand side vector.
 !
-!    Input/output, real ( kind = 8 ) X(N).
+!    Input/output, real(RP) X(N).
 !    On input, an estimate for the solution, which may be 0.
 !    On output, the approximate solution vector.
 !
   implicit none
 
-  integer ( kind = 4 ), intent(in)    :: n
-  integer ( kind = 4 ), intent(in)    :: mu
-  real ( kind = 8 )   , intent(in)    :: a(mu+1,n)
-  real ( kind = 8 )   , intent(in)    :: b(n)
-  real ( kind = 8 )   , intent(inout) :: x(n)
+  integer(IP), intent(in)    :: n
+  integer(IP), intent(in)    :: mu
+  real(RP)   , intent(in)    :: a(mu+1,n)
+  real(RP)   , intent(in)    :: b(n)
+  real(RP)   , intent(inout) :: x(n)
   
-  real ( kind = 8 ) :: alpha
-  real ( kind = 8 ) :: ap(n)
+  real(RP) :: alpha
+  real(RP) :: ap(n)
   
-  real ( kind = 8 ) :: beta
-  integer ( kind = 4 ) :: it
-  real ( kind = 8 ) :: p(n)
-  real ( kind = 8 ) :: pap
-  real ( kind = 8 ) :: pr
-  real ( kind = 8 ) :: r(n)
-  real ( kind = 8 ) :: rap
+  real(RP) :: beta
+  integer(IP) :: it
+  real(RP) :: p(n)
+  real(RP) :: pap
+  real(RP) :: pr
+  real(RP) :: r(n)
+  real(RP) :: rap
   
 !
 !  Initialize
@@ -742,30 +742,30 @@ end subroutine cg_pbu
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) N, the order of the matrix.
+!    Input, integer(IP) N, the order of the matrix.
 !    N must be positive.
 !
-!    Input, integer ( kind = 4 ) MU, the number of superdiagonals in the matrix.
+!    Input, integer(IP) MU, the number of superdiagonals in the matrix.
 !    MU must be at least 0 and no more than N-1.
 !
-!    Input, real ( kind = 8 ) A(MU+1,N), the PBU matrix.
+!    Input, real(RP) A(MU+1,N), the PBU matrix.
 !
-!    Input, real ( kind = 8 ) X(N), the vector to be multiplied by A.
+!    Input, real(RP) X(N), the vector to be multiplied by A.
 !
-!    Output, real ( kind = 8 ) B(N), the result vector A * x.
+!    Output, real(RP) B(N), the result vector A * x.
 !
   implicit none
 
-  integer ( kind = 4 ), intent(in)    :: m
-  integer ( kind = 4 ), intent(in)    :: n
-  integer ( kind = 4 ), intent(in)    :: mu
-  real ( kind = 8 )   , intent(in)    :: a(mu+1,n)
-  real ( kind = 8 )   , intent(in)    :: x(n)
-  real ( kind = 8 )   , intent(inout) :: b(n)
+  integer(IP), intent(in)    :: m
+  integer(IP), intent(in)    :: n
+  integer(IP), intent(in)    :: mu
+  real(RP)   , intent(in)    :: a(mu+1,n)
+  real(RP)   , intent(in)    :: x(n)
+  real(RP)   , intent(inout) :: b(n)
   
-  integer ( kind = 4 ) :: i
-  integer ( kind = 4 ) :: ieqn
-  integer ( kind = 4 ) :: j
+  integer(IP) :: i
+  integer(IP) :: ieqn
+  integer(IP) :: j
   
 !
 !  Multiply X by the diagonal of the matrix.

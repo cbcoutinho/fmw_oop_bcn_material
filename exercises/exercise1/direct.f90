@@ -850,36 +850,36 @@ contains
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) N, the order of the matrix.
+!    Input, integer(IP) N, the order of the matrix.
 !    N must be positive.
 !
-!    Input, integer ( kind = 4 ) MU, the number of superdiagonals of the matrix.
+!    Input, integer(IP) MU, the number of superdiagonals of the matrix.
 !    MU must be at least 0, and no more than N-1.
 !
-!    Input/output, real ( kind = 8 ) A(MU+1,N), the N by N matrix, stored 
+!    Input/output, real(RP) A(MU+1,N), the N by N matrix, stored 
 !    in LINPACK positive definite symmetric band matrix storage.
 !    On output, A contains information describing a factored form
 !    of the matrix, that can be used to solve linear systems
 !    A*x=b, using PBU_SL.
 !
-!    Output, integer ( kind = 4 ) INFO, singularity flag.
+!    Output, integer(IP) INFO, singularity flag.
 !    0, the matrix is nonsingular.
 !    nonzero, the matrix is singular.
 !
   implicit none
 
-  integer ( kind = 4 ), intent(in)    :: n
-  integer ( kind = 4 ), intent(in)    :: mu
-  real ( kind = 8 )   , intent(inout) :: a(mu+1,n)
-  integer ( kind = 4 ) :: info
+  integer(IP), intent(in)    :: n
+  integer(IP), intent(in)    :: mu
+  real(RP)   , intent(inout) :: a(mu+1,n)
+  integer(IP) :: info
   
-  integer ( kind = 4 ) :: ik
+  integer(IP) :: ik
   
-  integer ( kind = 4 ) :: j
-  integer ( kind = 4 ) :: jk
-  integer ( kind = 4 ) :: k
-  integer ( kind = 4 ) :: mm
-  real ( kind = 8 ) :: s
+  integer(IP) :: j
+  integer(IP) :: jk
+  integer(IP) :: k
+  integer(IP) :: mm
+  real(RP) :: s
 
   info = 0
 
@@ -960,29 +960,29 @@ end subroutine dpbufa
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) N, the order of the matrix.
+!    Input, integer(IP) N, the order of the matrix.
 !    N must be positive.
 !
-!    Input, integer ( kind = 4 ) MU, the number of superdiagonals of the matrix.
+!    Input, integer(IP) MU, the number of superdiagonals of the matrix.
 !    MU must be at least 0 and no more than N-1.
 !
-!    Input, real ( kind = 8 ) A_LU(MU+1,N), the LU factors from PBU_FA.
+!    Input, real(RP) A_LU(MU+1,N), the LU factors from PBU_FA.
 !
-!    Input/output, real ( kind = 8 ) B(N).
+!    Input/output, real(RP) B(N).
 !    On input, B contains the right hand side of the linear system
 !    to be solved.
 !    On output, B contains X, the solution vector.
 !
   implicit none
 
-  integer ( kind = 4 ), intent(in)    :: n
-  integer ( kind = 4 ), intent(in)    :: mu
-  real ( kind = 8 )   , intent(in)    :: a_lu(mu+1,n)
-  real ( kind = 8 )   , intent(inout) :: b(n)
+  integer(IP), intent(in)    :: n
+  integer(IP), intent(in)    :: mu
+  real(RP)   , intent(in)    :: a_lu(mu+1,n)
+  real(RP)   , intent(inout) :: b(n)
   
-  integer ( kind = 4 ) :: i
-  integer ( kind = 4 ) :: ilo
-  integer ( kind = 4 ) :: k
+  integer(IP) :: i
+  integer(IP) :: ilo
+  integer(IP) :: k
 !
 !  Solve L * Y = B.
 !
