@@ -907,10 +907,7 @@ contains
 
     if ( s <= 0.0D+00 ) then
       info = j
-      write ( *, '(a)' ) ' '
-      write ( *, '(a)' ) 'PBU_FA - Fatal error!'
-      write ( *, '(a,i8)' ) '  Nonpositive pivot on step ', info
-      stop 1
+      return
     end if
 
     a(mu+1,j) = sqrt ( s )

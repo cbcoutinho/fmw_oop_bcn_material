@@ -5,6 +5,7 @@ module matrix_factory_mod
   use dense_matrix_mod
   use band_matrix_mod
   use sparse_matrix_mod
+  use symmetric_band_matrix_mod
   
   implicit none
   private
@@ -12,10 +13,11 @@ module matrix_factory_mod
   character(:), parameter :: FULL_MATRIX   = "full_matrix"
   character(:), parameter :: BAND_MATRIX   = "band_matrix"
   character(:), parameter :: SPARSE_MATRIX = "sparse_matrix"
-  character(:), parameter :: MATRIX_TYPE_ERROR_MSG = "matrix_type MUST BE either [full_matrix|band_matrix|sparse_matrix]"
+  character(:), parameter :: SYMMETRIC_BAND_MATRIX = "symmetric_band_matrix"
+  character(:), parameter :: MATRIX_TYPE_ERROR_MSG = "matrix_type MUST BE either [full_matrix|band_matrix|sparse_matrix|symmetric_band_matrix]"
 
   public :: matrix_factory
-  public :: FULL_MATRIX, BAND_MATRIX, SPARSE_MATRIX
+  public :: FULL_MATRIX, BAND_MATRIX, SPARSE_MATRIX, SYMMETRIC_BAND_MATRIX
 contains
 
   subroutine matrix_factory( matrix_type, matrix )
@@ -27,7 +29,7 @@ contains
       call matrix%free(); deallocate(matrix)
     end if
     
-    mcheck(trim(matrix_type) == FULL_MATRIX .or. trim(matrix_type) == BAND_MATRIX .or. trim(matrix_type) == SPARSE_MATRIX, MATRIX_TYPE_ERROR_MSG)
+    mcheck(trim(matrix_type) == FULL_MATRIX .or. trim(matrix_type) == BAND_MATRIX .or. trim(matrix_type) == SPARSE_MATRIX .or. trim(matrix_type) == SYMMETRIC_BAND_MATRIX, MATRIX_TYPE_ERROR_MSG)
    
     select case ( trim(matrix_type) )
     case (FULL_MATRIX)
@@ -36,6 +38,8 @@ contains
       allocate( band_matrix_t :: matrix )
     case (SPARSE_MATRIX)
       allocate( sparse_matrix_t :: matrix )
+    case (SYMMETRIC_BAND_MATRIX)
+      allocate( symmetric_band_matrix_t  :: matrix )
     end select 
   end subroutine matrix_factory
   
