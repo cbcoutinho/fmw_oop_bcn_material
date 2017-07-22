@@ -1,4 +1,4 @@
-module direct_solver
+module direct_solver_mod
   use types
   implicit none
   private
@@ -6,7 +6,6 @@ module direct_solver
 contains
 
   subroutine daxpy ( n, da, dx, incx, dy, incy )
-
     !*****************************************************************************80
     !
     !! DAXPY computes constant times a vector plus a vector.
@@ -49,31 +48,31 @@ contains
     !
     !    Input, integer(ip) :: N, the number of elements in DX and DY.
     !
-    !    Input, real ( kind = 8 ) DA, the multiplier of DX.
+    !    Input, real(RP) DA, the multiplier of DX.
     !
-    !    Input, real ( kind = 8 ) DX(*), the first vector.
+    !    Input, real(RP) DX(*), the first vector.
     !
     !    Input, integer(ip) :: INCX, the increment between successive 
     !    entries of DX.
     !
-    !    Input/output, real ( kind = 8 ) DY(*), the second vector.
+    !    Input/output, real(RP) DY(*), the second vector.
     !    On output, DY(*) has been replaced by DY(*) + DA * DX(*).
     !
     !    Input, integer(ip) :: INCY, the increment between successive 
     !    entries of DY.
     !
     implicit none
-
-    real ( kind = 8 ) da
-    real ( kind = 8 ) dx(*)
-    real ( kind = 8 ) dy(*)
-    integer(ip) :: i
-    integer(ip) :: incx
-    integer(ip) :: incy
-    integer(ip) :: ix
-    integer(ip) :: iy
-    integer(ip) :: m
-    integer(ip) :: n
+    integer(IP), intent(in)    :: n
+    real(RP)   , intent(in)    :: da
+    real(RP)   , intent(in)    :: dx(*)
+    integer(IP), intent(in)    :: incx
+    real(RP)   , intent(inout) :: dy(*)
+    integer(IP), intent(in)    :: incy
+    
+    integer(IP) :: i
+    integer(IP) :: ix
+    integer(IP) :: iy
+    integer(IP) :: m
 
     if ( n <= 0 ) then
        return
@@ -126,7 +125,6 @@ contains
     return
   end subroutine daxpy
   function ddot ( n, dx, incx, dy, incy )
-
     !*****************************************************************************80
     !
     !! DDOT forms the dot product of two vectors.
@@ -169,33 +167,34 @@ contains
     !
     !    Input, integer(ip) :: N, the number of entries in the vectors.
     !
-    !    Input, real ( kind = 8 ) DX(*), the first vector.
+    !    Input, real(RP) DX(*), the first vector.
     !
     !    Input, integer(ip) :: INCX, the increment between successive 
     !    entries in DX.
     !
-    !    Input, real ( kind = 8 ) DY(*), the second vector.
+    !    Input, real(RP) DY(*), the second vector.
     !
     !    Input, integer(ip) :: INCY, the increment between successive 
     !    entries in DY.
     !
-    !    Output, real ( kind = 8 ) DDOT, the sum of the product of the 
+    !    Output, real(RP) DDOT, the sum of the product of the 
     !    corresponding entries of DX and DY.
     !
     implicit none
 
-    real ( kind = 8 ) ddot
-    real ( kind = 8 ) dtemp
-    real ( kind = 8 ) dx(*)
-    real ( kind = 8 ) dy(*)
-    integer(ip) :: i
-    integer(ip) :: incx
-    integer(ip) :: incy
-    integer(ip) :: ix
-    integer(ip) :: iy
-    integer(ip) :: m
-    integer(ip) :: n
-
+    integer(IP), intent(in) :: n
+    real(RP)   , intent(in) :: dx(*)
+    integer(IP), intent(in) :: incx
+    real(RP)   , intent(in) :: dy(*)
+    integer(IP), intent(in) :: incy
+    real(RP)                :: ddot
+    
+    real(RP) :: dtemp
+    integer(IP) :: i
+    integer(IP) :: ix
+    integer(IP) :: iy
+    integer(IP) :: m
+    
     ddot = 0.0D+00
     dtemp = 0.0D+00
 
@@ -284,7 +283,7 @@ contains
     !
     !  Parameters:
     !
-    !    Input/output, real ( kind = 8 ) ABD(LDA,N).  On input, the matrix in band
+    !    Input/output, real(RP) ABD(LDA,N).  On input, the matrix in band
     !    storage.  The columns of the matrix are stored in the columns of ABD
     !    and the diagonals of the matrix are stored in rows ML+1 through
     !    2*ML+MU+1 of ABD.  On output, an upper triangular matrix in band storage
@@ -310,28 +309,27 @@ contains
     !
     implicit none
 
-    integer(ip) :: lda
-    integer(ip) :: n
-
-    real ( kind = 8 ) abd(lda,n)
-    integer(ip) :: i
-    integer(ip) :: i0
-    integer(ip) :: info
-    integer(ip) :: ipvt(n)
-    !integer(ip) :: idamax
-    integer(ip) :: j
-    integer(ip) :: j0
-    integer(ip) :: j1
-    integer(ip) :: ju
-    integer(ip) :: jz
-    integer(ip) :: k
-    integer(ip) :: l
-    integer(ip) :: lm
-    integer(ip) :: m
-    integer(ip) :: ml
-    integer(ip) :: mm
-    integer(ip) :: mu
-    real ( kind = 8 ) t
+    real(RP)   , intent(inout) :: abd(lda,n)
+    integer(IP), intent(in)    :: lda
+    integer(IP), intent(in)    :: n
+    integer(IP), intent(out)   :: ipvt(n)
+    integer(IP), intent(out)   :: info
+    
+    integer(IP) :: i
+    integer(IP) :: i0    
+    integer(IP) :: j
+    integer(IP) :: j0
+    integer(IP) :: j1
+    integer(IP) :: ju
+    integer(IP) :: jz
+    integer(IP) :: k
+    integer(IP) :: l
+    integer(IP) :: lm
+    integer(IP) :: m
+    integer(IP) :: ml
+    integer(IP) :: mm
+    integer(IP) :: mu
+    real(RP) t
 
     m = ml + mu + 1
     info = 0
@@ -468,7 +466,7 @@ contains
     !
     !  Parameters:
     !
-    !    Input, real ( kind = 8 ) ABD(LDA,N), the output from DGBCO or DGBFA.
+    !    Input, real(RP) ABD(LDA,N), the output from DGBCO or DGBFA.
     !
     !    Input, integer(ip) :: LDA, the leading dimension of the array ABD.
     !
@@ -479,7 +477,7 @@ contains
     !
     !    Input, integer(ip) :: IPVT(N), the pivot vector from DGBCO or DGBFA.
     !
-    !    Input/output, real ( kind = 8 ) B(N).  On input, the right hand side.
+    !    Input/output, real(RP) B(N).  On input, the right hand side.
     !    On output, the solution.
     !
     !    Input, integer(ip) :: JOB, job choice.
@@ -488,23 +486,23 @@ contains
     !
     implicit none
 
-    integer(ip) :: lda
-    integer(ip) :: n
-
-    real ( kind = 8 ) abd(lda,n)
-    real ( kind = 8 ) b(n)
-    integer(ip) :: ipvt(n)
-    integer(ip) :: job
-    integer(ip) :: k
-    integer(ip) :: l
-    integer(ip) :: la
-    integer(ip) :: lb
-    integer(ip) :: lm
-    integer(ip) :: m
-    integer(ip) :: ml
-    integer(ip) :: mu
-    !real ( kind = 8 ) ddot
-    real ( kind = 8 ) t
+    real(RP)   , intent(in)     :: abd(lda,n)
+    integer(IP), intent(in)    :: lda
+    integer(IP), intent(in)    :: n
+    integer(IP), intent(in)    :: ml
+    integer(IP), intent(in)    :: mu
+    integer(IP), intent(in)    :: ipvt(n)
+    real(RP)   , intent(inout) :: b(n)
+    integer(IP), intent(in)    :: job
+    
+    integer(IP) :: k
+    integer(IP) :: l
+    integer(IP) :: la
+    integer(IP) :: lb
+    integer(IP) :: lm
+    integer(IP) :: m
+    
+    real(RP) :: t
 
     m = mu + ml + 1
     !
@@ -603,7 +601,7 @@ contains
     !
     !  Parameters:
     !
-    !    Input/output, real ( kind = 8 ) A(LDA,N).
+    !    Input/output, real(RP) A(LDA,N).
     !    On intput, the matrix to be factored.
     !    On output, an upper triangular matrix and the multipliers used to obtain
     !    it.  The factorization can be written A=L*U, where L is a product of
@@ -622,18 +620,16 @@ contains
     !    Use RCOND in DGECO for a reliable indication of singularity.
     !
     implicit none
-
-    integer(ip) :: lda
-    integer(ip) :: n
-
-    real ( kind = 8 ) a(lda,n)
-    integer(ip) :: info
-    integer(ip) :: ipvt(n)
-    !integer(ip) :: idamax
-    integer(ip) :: j
-    integer(ip) :: k
-    integer(ip) :: l
-    real ( kind = 8 ) t
+    real(RP)    , intent(inout) :: a(lda,n)
+    integer(IP) , intent(in)    :: lda
+    integer(IP) , intent(in)    :: n
+    integer(IP) , intent(out)   :: ipvt(n)
+    integer(IP) , intent(out)   :: info
+    
+    integer(IP) :: j
+    integer(IP) :: k
+    integer(IP) :: l
+    real(RP)    :: t
     !
     !  Gaussian elimination with partial pivoting.
     !
@@ -728,7 +724,7 @@ contains
     !
     !  Parameters:
     !
-    !    Input, real ( kind = 8 ) A(LDA,N), the output from DGECO or DGEFA.
+    !    Input, real(RP) A(LDA,N), the output from DGECO or DGEFA.
     !
     !    Input, integer(ip) :: LDA, the leading dimension of A.
     !
@@ -736,7 +732,7 @@ contains
     !
     !    Input, integer(ip) :: IPVT(N), the pivot vector from DGECO or DGEFA.
     !
-    !    Input/output, real ( kind = 8 ) B(N).
+    !    Input/output, real(RP) B(N).
     !    On input, the right hand side vector.
     !    On output, the solution vector.
     !
@@ -745,17 +741,16 @@ contains
     !    nonzero, solve A' * X = B.
     !
     implicit none
-
-    integer(ip) :: lda
-    integer(ip) :: n
-
-    real ( kind = 8 ) a(lda,n)
-    real ( kind = 8 ) b(n)
-    integer(ip) :: ipvt(n)
-    integer(ip) :: job
-    integer(ip) :: k
-    integer(ip) :: l
-    real ( kind = 8 ) t
+    real(RP)   , intent(in)    :: a(lda,n)
+    integer(IP), intent(in)    :: lda
+    integer(IP), intent(in)    :: n
+    integer(IP), intent(in)    :: ipvt(n)
+    real(RP)   , intent(inout) :: b(n)
+    integer(IP), intent(in)    :: job
+    
+    integer(IP) :: k
+    integer(IP) :: l
+    real(RP)    :: t
     !
     !  Solve A * X = B.
     !
@@ -808,7 +803,6 @@ contains
     return
   end subroutine dgesl
   subroutine dscal ( n, sa, x, incx )
-
     !*****************************************************************************80
     !
     !! DSCAL scales a vector by a constant.
@@ -849,23 +843,23 @@ contains
     !
     !    Input, integer(ip) :: N, the number of entries in the vector.
     !
-    !    Input, real ( kind = 8 ) SA, the multiplier.
+    !    Input, real(RP) SA, the multiplier.
     !
-    !    Input/output, real ( kind = 8 ) X(*), the vector to be scaled.
+    !    Input/output, real(RP) X(*), the vector to be scaled.
     !
     !    Input, integer(ip) :: INCX, the increment between successive 
     !    entries of X.
     !
     implicit none
-
-    integer(ip) :: i
-    integer(ip) :: incx
-    integer(ip) :: ix
-    integer(ip) :: m
-    integer(ip) :: n
-    real ( kind = 8 ) sa
-    real ( kind = 8 ) x(*)
-
+    integer(IP), intent(in)    :: n
+    real(RP)   , intent(in)    :: sa
+    real(RP)   , intent(inout) :: x(*)
+    integer(IP), intent(in)    :: incx
+    
+    integer(IP) :: i
+    integer(IP) :: ix
+    integer(IP) :: m
+    
     if ( n <= 0 ) then
 
     else if ( incx == 1 ) then
@@ -941,7 +935,7 @@ contains
     !
     !    Input, integer(ip) :: N, the number of entries in the vector.
     !
-    !    Input, real ( kind = 8 ) X(*), the vector to be examined.
+    !    Input, real(RP) DX(*), the vector to be examined.
     !
     !    Input, integer(ip) :: INCX, the increment between successive 
     !    entries of SX.
@@ -951,13 +945,14 @@ contains
     !
     implicit none
 
-    real ( kind = 8 ) dmax
-    real ( kind = 8 ) dx(*)
-    integer(ip) :: i
-    integer(ip) :: idamax
-    integer(ip) :: incx
-    integer(ip) :: ix
-    integer(ip) :: n
+    integer(IP), intent(in) :: n
+    real(RP)   , intent(in) :: dx(*)
+    integer(IP), intent(in) :: incx
+    integer(IP)             :: idamax
+    
+    real(RP) :: dmax
+    integer(IP) :: i
+    integer(IP) :: ix
 
     idamax = 0
 
@@ -1001,4 +996,4 @@ contains
     return
   end function idamax
 
-end module direct_solver
+end module direct_solver_mod

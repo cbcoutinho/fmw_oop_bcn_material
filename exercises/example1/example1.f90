@@ -7,52 +7,51 @@
 
 program example1
   use types
-  use random_numbers
-  use wathen_problem
-  use direct_solver
-  use iterative_solver
+  use random_numbers_mod
+  use wathen_problem_mod
+  use direct_solver_mod
+  use iterative_solver_mod
   implicit none
   
-  character(:), parameter :: full_matrix   = "full_matrix"
-  character(:), parameter :: band_matrix   = "band_matrix"
-  character(:), parameter :: sparse_matrix = "sparse_matrix"
-  character(:), parameter :: dir_solve     = "dir_solve"
-  character(:), parameter :: cg_solve      = "cg_solve"
+  character(:), parameter :: FULL_MATRIX   = "full_matrix"
+  character(:), parameter :: BAND_MATRIX   = "band_matrix"
+  character(:), parameter :: SPARSE_MATRIX = "sparse_matrix"
+  character(:), parameter :: DIR_SOLVE     = "dir_solve"
+  character(:), parameter :: CG_SOLVE      = "cg_solve"
   
   character(:), allocatable :: matrix_type, solver_type
-  integer (ip) :: nz_num
-  integer (ip), allocatable :: row(:)
-  integer (ip), allocatable :: col(:)
-  real (rp), allocatable :: a_st(:)
-  integer(ip) :: lda
-  integer(ip) :: ml
-  integer(ip) :: mu
-  integer(ip) :: md
+  integer (IP) :: nz_num
+  integer (IP), allocatable :: row(:)
+  integer (IP), allocatable :: col(:)
+  real (RP), allocatable :: a_st(:)
+  integer(IP) :: lda
+  integer(IP) :: ml
+  integer(IP) :: mu
+  integer(IP) :: md
 
-  real (rp), allocatable :: a(:,:)
-  real (rp), allocatable :: b(:)
-  real (rp) :: e
-  integer (ip) :: i
-  integer (ip) :: info
-  integer (ip), allocatable :: ipvt(:)
-  integer (ip) :: job
-  integer (ip) :: n
-  integer (ip) :: nx
-  integer (ip) :: ny
-  integer (ip) :: seed
-  real (rp), allocatable :: x1(:)
-  real (rp), allocatable :: x2(:)
+  real (RP), allocatable :: a(:,:)
+  real (RP), allocatable :: b(:)
+  real (RP) :: e
+  integer (IP) :: i
+  integer (IP) :: info
+  integer (IP), allocatable :: ipvt(:)
+  integer (IP) :: job
+  integer (IP) :: n
+  integer (IP) :: nx
+  integer (IP) :: ny
+  integer (IP) :: seed
+  real (RP), allocatable :: x1(:)
+  real (RP), allocatable :: x2(:)
 
   ! Read from command line:
   call read_and_check_command_line_parameters(  NX, NY, matrix_type, solver_type ) 
-
 
   ! Write information
   write ( *, '(a,i6)' ) '  Elements in X direction NX = ', nx
   write ( *, '(a,i6)' ) '  Elements in Y direction NY = ', ny
   write ( *, '(a,i6)' ) '  Number of elements = ', nx * ny
-  write ( *, '(a)' ) '  Matrix type = ', matrix_type
-  write ( *, '(a)' ) '  Solver type = ', solver_type
+  write ( *, '(a,a)' ) '  Matrix type = ', matrix_type
+  write ( *, '(a,a)' ) '  Solver type = ', solver_type
 
   ! Compute the number of unknowns.
   call wathen_order ( nx, ny, n )
@@ -64,7 +63,7 @@ program example1
   call r8vec_uniform_01 ( n, seed, x1 )
 
   seed = 123456789
-  if(matrix_type == full_matrix) then
+  if(matrix_type == FULL_MATRIX) then
      ! Compute the matrix.
      allocate ( a(1:n,1:n) )
      call wathen_ge ( nx, ny, n, seed, a )
@@ -73,19 +72,19 @@ program example1
      b = matmul ( a, x1 )
      !  Solve the linear system.
      allocate ( x2(1:n) )
-     if ( solver_type == dir_solve ) then
+     if ( solver_type == DIR_SOLVE ) then
         allocate ( ipvt(1:n) )
         call dgefa ( a, n, n, ipvt, info ) ! Factorization
         x2 = b
         job = 0
         call dgesl ( a, n, n, ipvt, x2, job ) ! Back sub
         deallocate ( ipvt )
-     else if( solver_type == cg_solve ) then
+     else if( solver_type == CG_SOLVE ) then
         x2 = 1.0_rp
         call cg_ge ( n, a, b, x2 )
      end if
      deallocate ( a )
-  else if(matrix_type == band_matrix) then
+  else if(matrix_type == BAND_MATRIX) then
      call wathen_bandwidth ( nx, ny, ml, md, mu )
      ! Compute the matrix.
      allocate ( a(1:2*ml+mu+1,1:n) )
@@ -95,7 +94,7 @@ program example1
      call mv_gb ( n, n, ml, mu, a, x1, b )
      !  Solve the linear system.
      allocate ( x2(1:n) )
-     if ( solver_type == dir_solve ) then
+     if ( solver_type == DIR_SOLVE ) then
         lda = 2 * ml + mu + 1
         allocate ( ipvt(1:n) )
         call dgbfa ( a, lda, n, ml, mu, ipvt, info )
@@ -108,7 +107,7 @@ program example1
         call cg_gb ( n, ml, mu, a, b, x2 )
      end if
      deallocate ( a )
-  else if(matrix_type == sparse_matrix) then
+  else if(matrix_type == SPARSE_MATRIX) then
      !  Compute the matrix size.
      call wathen_st_size ( nx, ny, nz_num )
      !  Compute the matrix.
@@ -140,18 +139,18 @@ contains
 
    subroutine read_and_check_command_line_parameters(  NX, NY, matrix_type, solver_type ) 
      implicit none
-     integer(ip)              , intent(out)   :: NX
-     integer(ip)              , intent(out)   :: NY
+     integer(IP)              , intent(out)   :: NX
+     integer(IP)              , intent(out)   :: NY
      character(:), allocatable, intent(inout) :: matrix_type
      character(:), allocatable, intent(inout) :: solver_type
      
-     character(:), parameter :: usage_error_msg       = "Usage: example1 NX NY matrix_type solver_type"
-     character(:), parameter :: matrix_type_error_msg = "matrix_type MUST BE either [full_matrix|band_matrix|sparse_matrix]"
-     character(:), parameter :: solver_type_error_msg = "solver_type MUST BE either [dir_solve|cg_solve]"
-     character(:), parameter :: matrix_solver_type_error_msg = "matrix/solver type combination not allowed"
-     character(:), parameter :: input_output_error_msg = "Error while reading NX or NY, these should be integers!!!"
+     character(:), parameter :: USAGE_ERROR_MSG       = "Usage: example1 NX NY matrix_type solver_type"
+     character(:), parameter :: MATRIX_TYPE_ERROR_MSG = "matrix_type MUST BE either [full_matrix|band_matrix|sparse_matrix]"
+     character(:), parameter :: SOLVER_TYPE_ERROR_MSG = "solver_type MUST BE either [dir_solve|cg_solve]"
+     character(:), parameter :: MATRIX_SOLVER_TYPE_ERROR_MSG = "matrix/solver type combination not allowed"
+     character(:), parameter :: IO_ERROR_MSG = "Error while reading NX or NY, these should be integers!!!"
      CHARACTER(len=256) :: arg
-     integer(ip) :: istat
+     integer(IP) :: istat
      
      if (allocated(matrix_type)) deallocate(matrix_type)
      if (allocated(solver_type)) deallocate(solver_type)
@@ -159,27 +158,25 @@ contains
      ! Recall that Fortran 2003 allows the retrieval of command line 
      ! arguments passed to the code
      CALL get_command_argument(1, arg)
-     mcheck(len(trim(arg))>0, usage_error_msg)
+     mcheck(len(trim(arg))>0, USAGE_ERROR_MSG)
      read(arg,*,iostat=istat) NX
-     mcheck(istat==0, input_output_error_msg)
+     mcheck(istat==0, IO_ERROR_MSG)
      
      CALL get_command_argument(2, arg)
-     mcheck(len(trim(arg))>0, usage_error_msg)
+     mcheck(len(trim(arg))>0, USAGE_ERROR_MSG)
      read(arg,*,iostat=istat) NY
-     mcheck(istat==0, input_output_error_msg)
+     mcheck(istat==0, IO_ERROR_MSG)
      
      CALL get_command_argument(3, arg)
-     mcheck(len(trim(arg))>0, usage_error_msg)
-     mcheck(trim(arg) == full_matrix .or. trim(arg) == band_matrix .or. trim(arg) == sparse_matrix,matrix_type_error_msg)
+     mcheck(len(trim(arg))>0, USAGE_ERROR_MSG)
+     mcheck(trim(arg) == FULL_MATRIX .or. trim(arg) == BAND_MATRIX .or. trim(arg) == SPARSE_MATRIX, MATRIX_TYPE_ERROR_MSG)
      matrix_type = trim(arg)
      
      CALL get_command_argument(4, arg)
-     mcheck(len(trim(arg))>0, usage_error_msg)
-     mcheck(trim(arg) == dir_solve .or. trim(arg) == cg_solve, solver_type_error_msg)
+     mcheck(len(trim(arg))>0, USAGE_ERROR_MSG)
+     mcheck(trim(arg) == DIR_SOLVE .or. trim(arg) == CG_SOLVE, SOLVER_TYPE_ERROR_MSG)
      solver_type = trim(arg)
-     mcheck ( .not. (matrix_type == sparse_matrix .and. solver_type == dir_solve), matrix_solver_type_error_msg)
-     
-     
+     mcheck ( .not. (matrix_type == SPARSE_MATRIX .and. solver_type == DIR_SOLVE), MATRIX_SOLVER_TYPE_ERROR_MSG)     
    end subroutine read_and_check_command_line_parameters
 
 end program example1

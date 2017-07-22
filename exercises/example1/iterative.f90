@@ -1,4 +1,4 @@
-module iterative_solver
+module iterative_solver_mod
   use types
   implicit none
   private
@@ -7,7 +7,6 @@ module iterative_solver
 contains
 
   subroutine cg_gb ( n, ml, mu, a, b, x )
-
     !*****************************************************************************80
     !
     !! CG_GB uses the conjugate gradient method for a general banded (GB) matrix.
@@ -52,32 +51,33 @@ contains
     !
     !    Input, integer(ip) :: ML, MU, the lower and upper bandwidths.
     !
-    !    Input, real ( kind = 8 ) A(2*ML+MU+1,N), the band matrix.
+    !    Input, real(RP) A(2*ML+MU+1,N), the band matrix.
     !
-    !    Input, real ( kind = 8 ) B(N), the right hand side vector.
+    !    Input, real(RP) B(N), the right hand side vector.
     !
-    !    Input/output, real ( kind = 8 ) X(N).
+    !    Input/output, real(RP) X(N).
     !    On input, an estimate for the solution, which may be 0.
     !    On output, the approximate solution vector.  
     !
     implicit none
-
-    integer(ip) :: ml
-    integer(ip) :: mu
-    integer(ip) :: n
-
-    real ( kind = 8 ) a(2*ml+mu+1,n)
-    real ( kind = 8 ) alpha
-    real ( kind = 8 ) ap(n)
-    real ( kind = 8 ) b(n)
-    real ( kind = 8 ) beta
-    integer(ip) :: it
-    real ( kind = 8 ) p(n)
-    real ( kind = 8 ) pap
-    real ( kind = 8 ) pr
-    real ( kind = 8 ) r(n)
-    real ( kind = 8 ) rap
-    real ( kind = 8 ) x(n)
+    integer(IP), intent(in)    :: n
+    integer(IP), intent(in)    :: ml
+    integer(IP), intent(in)    :: mu
+    real(RP)   , intent(in)    :: a(2*ml+mu+1,n)
+    real(RP)   , intent(in)    :: b(n)
+    real(RP)   , intent(inout) :: x(n)
+    
+    real(RP) :: alpha
+    real(RP) :: ap(n)
+    
+    real(RP) :: beta
+    integer(IP) :: it
+    real(RP) :: p(n)
+    real(RP) :: pap
+    real(RP) :: pr
+    real(RP) :: r(n)
+    real(RP) :: rap
+    
     !
     !  Initialize
     !    AP = A * x,
@@ -181,30 +181,32 @@ contains
     !
     !    Input, integer(ip) :: N, the order of the matrix.
     !
-    !    Input, real ( kind = 8 ) A(N,N), the matrix.
+    !    Input, real(RP) A(N,N), the matrix.
     !
-    !    Input, real ( kind = 8 ) B(N), the right hand side vector.
+    !    Input, real(RP) B(N), the right hand side vector.
     !
-    !    Input/output, real ( kind = 8 ) X(N).
+    !    Input/output, real(RP) X(N).
     !    On input, an estimate for the solution, which may be 0.
     !    On output,  the approximate solution vector.  
     !
     implicit none
 
-    integer(ip) :: n
-
-    real ( kind = 8 ) a(n,n)
-    real ( kind = 8 ) alpha
-    real ( kind = 8 ) ap(n)
-    real ( kind = 8 ) b(n)
-    real ( kind = 8 ) beta
-    integer(ip) :: it
-    real ( kind = 8 ) p(n)
-    real ( kind = 8 ) pap
-    real ( kind = 8 ) pr
-    real ( kind = 8 ) r(n)
-    real ( kind = 8 ) rap
-    real ( kind = 8 ) x(n)
+    integer(IP), intent(in)    :: n
+    real(RP)   , intent(in)    :: a(n,n)
+    real(RP)   , intent(in)    :: b(n)
+    real(RP)   , intent(inout) :: x(n)
+    
+    real(RP) :: alpha
+    real(RP) :: ap(n)
+    
+    real(RP)    :: beta
+    integer(IP) :: it
+    real(RP)    :: p(n)
+    real(RP)    :: pap
+    real(RP)    :: pr
+    real(RP)    :: r(n)
+    real(RP)    :: rap
+    
     !
     !  Initialize
     !    AP = A * x,
@@ -313,33 +315,34 @@ contains
     !    Input, integer(ip) :: ROW(NZ_NUM), COL(NZ_NUM), the row and column 
     !    indices of the nonzero entries.
     !
-    !    Input, real ( kind = 8 ) A(NZ_NUM), the nonzero entries.
+    !    Input, real(RP) A(NZ_NUM), the nonzero entries.
     !
-    !    Input, real ( kind = 8 ) B(N), the right hand side vector.
+    !    Input, real(RP) B(N), the right hand side vector.
     !
-    !    Input/output, real ( kind = 8 ) X(N).
+    !    Input/output, real(RP) X(N).
     !    On input, an estimate for the solution, which may be 0.
     !    On output, the approximate solution vector.  
     !
     implicit none
 
-    integer(ip) :: n
-    integer(ip) :: nz_num
-
-    real ( kind = 8 ) a(nz_num)
-    real ( kind = 8 ) alpha
-    real ( kind = 8 ) ap(n)
-    real ( kind = 8 ) b(n)
-    real ( kind = 8 ) beta
-    integer(ip) :: col(nz_num)
-    integer(ip) :: it
-    real ( kind = 8 ) p(n)
-    real ( kind = 8 ) pap
-    real ( kind = 8 ) pr
-    real ( kind = 8 ) r(n)
-    real ( kind = 8 ) rap
-    integer(ip) :: row(nz_num)
-    real ( kind = 8 ) x(n)
+    integer(IP), intent(in)    :: n
+    integer(IP), intent(in)    :: nz_num
+    integer(IP), intent(in)    :: row(nz_num)
+    integer(IP), intent(in)    :: col(nz_num)
+    real(RP)   , intent(in)    :: a(nz_num)
+    real(RP)   , intent(in)    :: b(n)
+    real(RP)   , intent(inout) :: x(n)
+    
+    real(RP) :: alpha
+    real(RP) :: ap(n)
+    real(RP) :: beta
+    integer(IP) :: it
+    real(RP) :: p(n)
+    real(RP) :: pap
+    real(RP) :: pr
+    real(RP) :: r(n)
+    real(RP) :: rap
+    
     !
     !  Initialize
     !    AP = A * x,
@@ -427,27 +430,27 @@ contains
     !
     !    Input, integer(ip) :: ML, MU, the lower and upper bandwidths.
     !
-    !    Input, real ( kind = 8 ) A(2*ML+MU+1,N), the matrix.
+    !    Input, real(RP) A(2*ML+MU+1,N), the matrix.
     !
-    !    Input, real ( kind = 8 ) X(N), the vector to be multiplied by A.
+    !    Input, real(RP) X(N), the vector to be multiplied by A.
     !
-    !    Output, real ( kind = 8 ) B(M), the product A * x.
+    !    Output, real(RP) B(M), the product A * x.
     !
     implicit none
 
-    integer(ip) :: m
-    integer(ip) :: ml
-    integer(ip) :: mu
-    integer(ip) :: n
-
-    real ( kind = 8 ) a(2*ml+mu+1,n)
-    real ( kind = 8 ) b(m)
-    integer(ip) :: i
-    integer(ip) :: j
-    integer(ip) :: jhi
-    integer(ip) :: jlo
-    real ( kind = 8 ) x(n)
-
+    integer(IP), intent(in)  :: m
+    integer(IP), intent(in)  :: n
+    integer(IP), intent(in)  :: ml
+    integer(IP), intent(in)  :: mu
+    real(RP)   , intent(in)  :: a(2*ml+mu+1,n)
+    real(RP)   , intent(in)  :: x(n)
+    real(RP)   , intent(out) :: b(m)
+    
+    integer(IP) :: i
+    integer(IP) :: j
+    integer(IP) :: jhi
+    integer(IP) :: jlo
+    
     b(1:m) = 0.0D+00
 
     do i = 1, n
@@ -497,23 +500,19 @@ contains
     !    Input, integer(ip) :: N, the number of columns of the matrix.
     !    N must be positive.
     !
-    !    Input, real ( kind = 8 ) A(M,N), the R8GE matrix.
+    !    Input, real(RP) A(M,N), the R8GE matrix.
     !
-    !    Input, real ( kind = 8 ) X(N), the vector to be multiplied by A.
+    !    Input, real(RP) X(N), the vector to be multiplied by A.
     !
-    !    Output, real ( kind = 8 ) B(M), the product A * x.
+    !    Output, real(RP) B(M), the product A * x.
     !
     implicit none
-
-    integer(ip) :: m
-    integer(ip) :: n
-
-    real ( kind = 8 ) a(m,n)
-    real ( kind = 8 ) b(m)
-    real ( kind = 8 ) x(n)
-
+    integer(IP), intent(in) :: m
+    integer(IP), intent(in) :: n
+    real(RP)   , intent(in)  :: a(m,n)
+    real(RP)   , intent(in)  :: x(n)
+    real(RP)   , intent(out) :: b(m)
     b(1:m) = matmul ( a(1:m,1:n), x(1:n) )
-
     return
   end subroutine mv_ge
   subroutine mv_st ( m, n, nz_num, row, col, a, x, b )
@@ -543,24 +542,24 @@ contains
     !    Input, integer(ip) :: ROW(NZ_NUM), COL(NZ_NUM), the row and 
     !    column indices.
     !
-    !    Input, real ( kind = 8 ) A(NZ_NUM), the nonzero values in the matrix.
+    !    Input, real(RP) A(NZ_NUM), the nonzero values in the matrix.
     !
-    !    Input, real ( kind = 8 ) X(N), the vector to be multiplied.
+    !    Input, real(RP) X(N), the vector to be multiplied.
     !
-    !    Output, real ( kind = 8 ) B(M), the product A*X.
+    !    Output, real(RP) B(M), the product A*X.
     !
     implicit none
 
-    integer(ip) :: m
-    integer(ip) :: n
-    integer(ip) :: nz_num
-
-    real ( kind = 8 ) a(nz_num)
-    real ( kind = 8 ) b(m)
-    integer(ip) :: col(nz_num)
-    integer(ip) :: k
-    integer(ip) :: row(nz_num)
-    real ( kind = 8 ) x(n)
+    integer(IP), intent(in)  :: m
+    integer(IP), intent(in)  :: n
+    integer(IP), intent(in)  :: nz_num
+    integer(IP), intent(in)  :: row(nz_num)
+    integer(IP), intent(in)  :: col(nz_num)
+    real(RP)   , intent(in)  :: a(nz_num)
+    real(RP)   , intent(out) :: b(m)
+    
+    integer(IP) :: k
+    real(RP) :: x(n)
 
     b(1:m) = 0.0D+00
     do k = 1, nz_num
@@ -569,5 +568,5 @@ contains
 
     return
   end subroutine mv_st
-
-end module iterative_solver
+  
+end module iterative_solver_mod
