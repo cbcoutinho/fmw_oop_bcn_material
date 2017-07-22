@@ -2,7 +2,7 @@ module direct_solver_mod
   use types_mod
   implicit none
   private
-  public :: dgbfa, dgbsl, dgefa, dgesl
+  public :: dgbfa, dgbsl, dgefa, dgesl, dpbufa, dpbusl
 contains
 
   subroutine daxpy ( n, da, dx, incx, dy, incy )
@@ -684,7 +684,6 @@ contains
     return
   end subroutine dgefa
   subroutine dgesl ( a, lda, n, ipvt, b, job )
-
     !*****************************************************************************80
     !
     !! DGESL solves a real general linear system A * X = B.
@@ -802,6 +801,213 @@ contains
 
     return
   end subroutine dgesl
+  
+  subroutine  dpbufa ( n, mu, a, info )
+!*****************************************************************************80
+!
+!! PBU_FA factors an PBU matrix.
+!
+!  Discussion:
+!
+!    The PBU storage format is for a symmetric positive definite band matrix.
+!
+!    To save storage, only the diagonal and upper triangle of A is stored,
+!    in a compact diagonal format that preserves columns.
+!
+!    The diagonal is stored in row MU+1 of the array.
+!    The first superdiagonal in row MU, columns 2 through N.
+!    The second superdiagonal in row MU-1, columns 3 through N.
+!    The MU-th superdiagonal in row 1, columns MU+1 through N.
+!
+!    The matrix A must be a positive definite symmetric band matrix.
+!
+!    Once factored, linear systems A*x=b involving the matrix can be solved
+!    by calling PBU_SL.  No pivoting is performed.  Pivoting is not necessary
+!    for positive definite symmetric matrices.  If the matrix is not positive
+!    definite, the algorithm may behave correctly, but it is also possible
+!    that an illegal divide by zero will occur.
+!
+!  Licensing:
+!
+!    This code is distributed under the GNU LGPL license. 
+!
+!  Modified:
+!
+!    31 October 1998
+!
+!  Author:
+!
+!    Original FORTRAN77 version by Dongarra, Bunch, Moler, Stewart.
+!    FORTRAN90 version by John Burkardt
+!
+!  Reference:
+!
+!    Jack Dongarra, Jim Bunch, Cleve Moler, Pete Stewart,
+!    LINPACK User's Guide,
+!    SIAM, 1979,
+!    ISBN13: 978-0-898711-72-1,
+!    LC: QA214.L56.
+!
+!  Parameters:
+!
+!    Input, integer ( kind = 4 ) N, the order of the matrix.
+!    N must be positive.
+!
+!    Input, integer ( kind = 4 ) MU, the number of superdiagonals of the matrix.
+!    MU must be at least 0, and no more than N-1.
+!
+!    Input/output, real ( kind = 8 ) A(MU+1,N), the N by N matrix, stored 
+!    in LINPACK positive definite symmetric band matrix storage.
+!    On output, A contains information describing a factored form
+!    of the matrix, that can be used to solve linear systems
+!    A*x=b, using PBU_SL.
+!
+!    Output, integer ( kind = 4 ) INFO, singularity flag.
+!    0, the matrix is nonsingular.
+!    nonzero, the matrix is singular.
+!
+  implicit none
+
+  integer ( kind = 4 ), intent(in)    :: n
+  integer ( kind = 4 ), intent(in)    :: mu
+  real ( kind = 8 )   , intent(inout) :: a(mu+1,n)
+  integer ( kind = 4 ) :: info
+  
+  integer ( kind = 4 ) :: ik
+  
+  integer ( kind = 4 ) :: j
+  integer ( kind = 4 ) :: jk
+  integer ( kind = 4 ) :: k
+  integer ( kind = 4 ) :: mm
+  real ( kind = 8 ) :: s
+
+  info = 0
+
+  do j = 1, n
+
+    ik = mu + 1
+    jk = max ( j - mu, 1 )
+    mm = max ( mu + 2 - j, 1 )
+
+    s = 0.0D+00
+
+    do k = mm, mu
+
+      a(k,j) = ( a(k,j) - sum ( a(ik:ik+k-mm-1,jk) * a(mm:k-1,j) ) ) &
+        / a(mu+1,jk)
+
+      s = s + a(k,j) * a(k,j)
+
+      ik = ik - 1
+      jk = jk + 1
+
+    end do
+
+    s = a(mu+1,j) - s
+
+    if ( s <= 0.0D+00 ) then
+      info = j
+      write ( *, '(a)' ) ' '
+      write ( *, '(a)' ) 'PBU_FA - Fatal error!'
+      write ( *, '(a,i8)' ) '  Nonpositive pivot on step ', info
+      stop 1
+    end if
+
+    a(mu+1,j) = sqrt ( s )
+
+  end do
+
+  return
+end subroutine dpbufa
+  
+  subroutine dpbusl ( n, mu, a_lu, b )
+!*****************************************************************************80
+!
+!! PBU_SL solves an PBU system factored by PBU_FA.
+!
+!  Discussion:
+!
+!    The PBU storage format is for a symmetric positive definite band matrix.
+!
+!    To save storage, only the diagonal and upper triangle of A is stored,
+!    in a compact diagonal format that preserves columns.
+!
+!    The diagonal is stored in row MU+1 of the array.
+!    The first superdiagonal in row MU, columns 2 through N.
+!    The second superdiagonal in row MU-1, columns 3 through N.
+!    The MU-th superdiagonal in row 1, columns MU+1 through N.
+!
+!  Licensing:
+!
+!    This code is distributed under the GNU LGPL license. 
+!
+!  Modified:
+!
+!    31 October 1998
+!
+!  Author:
+!
+!    Original FORTRAN77 version by Dongarra, Bunch, Moler, Stewart.
+!    FORTRAN90 version by John Burkardt.
+!
+!  Reference:
+!
+!    Jack Dongarra, Jim Bunch, Cleve Moler, Pete Stewart,
+!    LINPACK User's Guide,
+!    SIAM, 1979,
+!    ISBN13: 978-0-898711-72-1,
+!    LC: QA214.L56.
+!
+!  Parameters:
+!
+!    Input, integer ( kind = 4 ) N, the order of the matrix.
+!    N must be positive.
+!
+!    Input, integer ( kind = 4 ) MU, the number of superdiagonals of the matrix.
+!    MU must be at least 0 and no more than N-1.
+!
+!    Input, real ( kind = 8 ) A_LU(MU+1,N), the LU factors from PBU_FA.
+!
+!    Input/output, real ( kind = 8 ) B(N).
+!    On input, B contains the right hand side of the linear system
+!    to be solved.
+!    On output, B contains X, the solution vector.
+!
+  implicit none
+
+  integer ( kind = 4 ), intent(in)    :: n
+  integer ( kind = 4 ), intent(in)    :: mu
+  real ( kind = 8 )   , intent(in)    :: a_lu(mu+1,n)
+  real ( kind = 8 )   , intent(inout) :: b(n)
+  
+  integer ( kind = 4 ) :: i
+  integer ( kind = 4 ) :: ilo
+  integer ( kind = 4 ) :: k
+!
+!  Solve L * Y = B.
+!
+  do k = 1, n
+    ilo = max ( 1, k - mu )
+    b(k) = ( b(k) - sum ( b(ilo:k-1) * a_lu(mu+1+ilo-k:mu,k) ) ) &
+      / a_lu(mu+1,k)
+  end do
+!
+!  Solve U * X = Y.
+!
+  do k = n, 1, -1
+
+    b(k) = b(k) / a_lu(mu+1,k)
+
+    ilo = max ( 1, k - mu )
+    do i = ilo, k - 1
+      b(i) = b(i) - b(k) * a_lu(mu+1+i-k,k)
+    end do
+
+  end do
+
+  return
+end subroutine dpbusl
+  
   subroutine dscal ( n, sa, x, incx )
     !*****************************************************************************80
     !
@@ -996,4 +1202,6 @@ contains
     return
   end function idamax
 
+  
+  
 end module direct_solver_mod

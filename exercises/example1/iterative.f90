@@ -2,8 +2,8 @@ module iterative_solver_mod
   use types_mod
   implicit none
   private
-  public :: mv_gb, mv_ge, mv_st
-  public :: cg_gb, cg_ge, cg_st
+  public :: mv_gb, mv_ge, mv_st, mv_pbu
+  public :: cg_gb, cg_ge, cg_st, cg_pbu
 contains
 
   subroutine cg_gb ( n, ml, mu, a, b, x )
@@ -569,4 +569,220 @@ contains
     return
   end subroutine mv_st
   
+  subroutine cg_pbu ( n, mu, a, b, x )
+!*****************************************************************************80
+!
+!! PBU_CG uses the conjugate gradient method on an PBU system.
+!
+!  Discussion:
+!
+!    The PBU storage format is for a symmetric positive definite band matrix.
+!
+!    To save storage, only the diagonal and upper triangle of A is stored,
+!    in a compact diagonal format that preserves columns.
+!
+!    The diagonal is stored in row MU+1 of the array.
+!    The first superdiagonal in row MU, columns 2 through N.
+!    The second superdiagonal in row MU-1, columns 3 through N.
+!    The MU-th superdiagonal in row 1, columns MU+1 through N.
+!
+!    The matrix A must be a positive definite symmetric band matrix.
+!
+!    The method is designed to reach the solution after N computational
+!    steps.  However, roundoff may introduce unacceptably large errors for
+!    some problems.  In such a case, calling the routine again, using
+!    the computed solution as the new starting estimate, should improve
+!    the results.
+!
+!  Licensing:
+!
+!    This code is distributed under the GNU LGPL license. 
+!
+!  Modified:
+!
+!    15 October 1998
+!
+!  Author:
+!
+!    John Burkardt
+!
+!  Reference:
+!
+!    Frank Beckman,
+!    The Solution of Linear Equations by the Conjugate Gradient Method,
+!    in Mathematical Methods for Digital Computers,
+!    edited by John Ralston, Herbert Wilf,
+!    Wiley, 1967,
+!    ISBN: 0471706892,
+!    LC: QA76.5.R3.
+!
+!  Parameters:
+!
+!    Input, integer ( kind = 4 ) N, the order of the matrix.
+!    N must be positive.
+!
+!    Input, integer ( kind = 4 ) MU, the number of superdiagonals.
+!    MU must be at least 0, and no more than N-1.
+!
+!    Input, real ( kind = 8 ) A(MU+1,N), the PBU matrix.
+!
+!    Input, real ( kind = 8 ) B(N), the right hand side vector.
+!
+!    Input/output, real ( kind = 8 ) X(N).
+!    On input, an estimate for the solution, which may be 0.
+!    On output, the approximate solution vector.
+!
+  implicit none
+
+  integer ( kind = 4 ), intent(in)    :: n
+  integer ( kind = 4 ), intent(in)    :: mu
+  real ( kind = 8 )   , intent(in)    :: a(mu+1,n)
+  real ( kind = 8 )   , intent(in)    :: b(n)
+  real ( kind = 8 )   , intent(inout) :: x(n)
+  
+  real ( kind = 8 ) :: alpha
+  real ( kind = 8 ) :: ap(n)
+  
+  real ( kind = 8 ) :: beta
+  integer ( kind = 4 ) :: it
+  real ( kind = 8 ) :: p(n)
+  real ( kind = 8 ) :: pap
+  real ( kind = 8 ) :: pr
+  real ( kind = 8 ) :: r(n)
+  real ( kind = 8 ) :: rap
+  
+!
+!  Initialize
+!    AP = A * x,
+!    R  = b - A * x,
+!    P  = b - A * x.
+!
+  call mv_pbu ( n, n, mu, a, x, ap )
+
+  r(1:n) = b(1:n) - ap(1:n)
+  p(1:n) = b(1:n) - ap(1:n)
+!
+!  Do the N steps of the conjugate gradient method.
+!
+  do it = 1, n
+!
+!  Compute the matrix*vector product AP=A*P.
+!
+    call mv_pbu ( n, n, mu, a, p, ap )
+!
+!  Compute the dot products
+!    PAP = P*AP,
+!    PR  = P*R
+!  Set
+!    ALPHA = PR / PAP.
+!
+    pap = dot_product ( p, ap )
+    pr = dot_product ( p, r )
+
+    if ( pap == 0.0D+00 ) then
+      return
+    end if
+
+    alpha = pr / pap
+!
+!  Set
+!    X = X + ALPHA * P
+!    R = R - ALPHA * AP.
+!
+    x(1:n) = x(1:n) + alpha * p(1:n)
+    r(1:n) = r(1:n) - alpha * ap(1:n)
+!
+!  Compute the vector dot product
+!    RAP = R*AP
+!  Set
+!    BETA = - RAP / PAP.
+!
+    rap = dot_product ( r, ap )
+
+    beta = - rap / pap
+!
+!  Update the perturbation vector
+!    P = R + BETA * P.
+!
+    p(1:n) = r(1:n) + beta * p(1:n)
+
+  end do
+  return
+end subroutine cg_pbu
+  
+  subroutine mv_pbu ( m, n, mu, a, x, b )
+
+!*****************************************************************************80
+!
+!! PBU_MV multiplies an PBU matrix by an R8VEC.
+!
+!  Discussion:
+!
+!    The PBU storage format is for a symmetric positive definite band matrix.
+!
+!    To save storage, only the diagonal and upper triangle of A is stored,
+!    in a compact diagonal format that preserves columns.
+!
+!    The diagonal is stored in row MU+1 of the array.
+!    The first superdiagonal in row MU, columns 2 through N.
+!    The second superdiagonal in row MU-1, columns 3 through N.
+!    The MU-th superdiagonal in row 1, columns MU+1 through N.
+!
+!  Licensing:
+!
+!    This code is distributed under the GNU LGPL license. 
+!
+!  Modified:
+!
+!    15 October 1998
+!
+!  Author:
+!
+!    John Burkardt
+!
+!  Parameters:
+!
+!    Input, integer ( kind = 4 ) N, the order of the matrix.
+!    N must be positive.
+!
+!    Input, integer ( kind = 4 ) MU, the number of superdiagonals in the matrix.
+!    MU must be at least 0 and no more than N-1.
+!
+!    Input, real ( kind = 8 ) A(MU+1,N), the PBU matrix.
+!
+!    Input, real ( kind = 8 ) X(N), the vector to be multiplied by A.
+!
+!    Output, real ( kind = 8 ) B(N), the result vector A * x.
+!
+  implicit none
+
+  integer ( kind = 4 ), intent(in)    :: m
+  integer ( kind = 4 ), intent(in)    :: n
+  integer ( kind = 4 ), intent(in)    :: mu
+  real ( kind = 8 )   , intent(in)    :: a(mu+1,n)
+  real ( kind = 8 )   , intent(in)    :: x(n)
+  real ( kind = 8 )   , intent(inout) :: b(n)
+  
+  integer ( kind = 4 ) :: i
+  integer ( kind = 4 ) :: ieqn
+  integer ( kind = 4 ) :: j
+  
+!
+!  Multiply X by the diagonal of the matrix.
+!
+  b(1:n) = a(mu+1,1:n) * x(1:n)
+!
+!  Multiply X by the superdiagonals of the matrix.
+!
+  do i = mu, 1, -1
+    do j = mu + 2 - i, n
+      ieqn = i + j - mu - 1
+      b(ieqn) = b(ieqn) + a(i,j) * x(j)
+      b(j) = b(j) + a(i,j) * x(ieqn)
+    end do
+  end do
+  return
+end subroutine mv_pbu
+
+
 end module iterative_solver_mod

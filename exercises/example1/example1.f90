@@ -10,6 +10,8 @@ program example1
   character(:), parameter :: FULL_MATRIX   = "full_matrix"
   character(:), parameter :: BAND_MATRIX   = "band_matrix"
   character(:), parameter :: SPARSE_MATRIX = "sparse_matrix"
+  character(:), parameter :: SYMMETRIC_BAND_MATRIX = "symmetric_band_matrix"
+  
   character(:), parameter :: DIR_SOLVE     = "dir_solve"
   character(:), parameter :: CG_SOLVE      = "cg_solve"
   
@@ -118,6 +120,25 @@ program example1
      x2 = 1.0_rp
      call cg_st ( n, nz_num, row, col, a_st, b, x2 )
      deallocate ( a_st )
+  else if (matrix_type == SYMMETRIC_BAND_MATRIX) then
+     call wathen_bandwidth ( nx, ny, ml, md, mu )
+     ! Compute the matrix.
+     allocate ( a(mu+1,1:n) )
+     call wathen_pbu ( nx, ny, n, seed, a )
+     !  Compute the corresponding right hand side B.
+     allocate ( b(1:n) )
+     call mv_pbu ( n, n, mu, a, x1, b )
+     !  Solve the linear system.
+     allocate ( x2(1:n) )
+     if ( solver_type == DIR_SOLVE ) then
+        call dpbufa ( n, mu, a, info )
+        x2 = b
+        call dpbusl ( n, mu, a, x2 )
+     else
+        x2 = 1.0_rp
+        call cg_pbu ( n, mu, a, b, x2 )
+     end if
+     deallocate ( a )
   end if
 
   !  Compute the maximum solution error.
@@ -139,7 +160,7 @@ contains
      character(:), allocatable, intent(inout) :: solver_type
      
      character(:), parameter :: USAGE_ERROR_MSG       = "Usage: example1 NX NY matrix_type solver_type"
-     character(:), parameter :: MATRIX_TYPE_ERROR_MSG = "matrix_type MUST BE either [full_matrix|band_matrix|sparse_matrix]"
+     character(:), parameter :: MATRIX_TYPE_ERROR_MSG = "matrix_type MUST BE either [full_matrix|band_matrix|sparse_matrix|symmetric_band_matrix]"
      character(:), parameter :: SOLVER_TYPE_ERROR_MSG = "solver_type MUST BE either [dir_solve|cg_solve]"
      character(:), parameter :: MATRIX_SOLVER_TYPE_ERROR_MSG = "matrix/solver type combination not allowed"
      character(:), parameter :: IO_ERROR_MSG = "Error while reading NX or NY, these should be integers!!!"
@@ -163,7 +184,7 @@ contains
      
      CALL get_command_argument(3, arg)
      mcheck(len(trim(arg))>0, USAGE_ERROR_MSG)
-     mcheck(trim(arg) == FULL_MATRIX .or. trim(arg) == BAND_MATRIX .or. trim(arg) == SPARSE_MATRIX, MATRIX_TYPE_ERROR_MSG)
+     mcheck(trim(arg) == FULL_MATRIX .or. trim(arg) == BAND_MATRIX .or. trim(arg) == SPARSE_MATRIX .or. trim(arg) == SYMMETRIC_BAND_MATRIX, MATRIX_TYPE_ERROR_MSG)
      matrix_type = trim(arg)
      
      CALL get_command_argument(4, arg)

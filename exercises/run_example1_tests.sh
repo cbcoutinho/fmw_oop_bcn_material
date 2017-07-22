@@ -23,3 +23,11 @@ echo "***************************"
 echo "Sparse matrix storage tests"
 echo "***************************"
 $PATH_TO_EXAMPLE1 10 10 sparse_matrix cg_solve
+
+#Symmetric band matrix storage tests
+echo "***********************************"
+echo "Symmetric band matrix storage tests"
+echo "***********************************"
+$PATH_TO_EXAMPLE1 10 10 symmetric_band_matrix dir_solve
+$PATH_TO_EXAMPLE1 10 10 symmetric_band_matrix cg_solve
+

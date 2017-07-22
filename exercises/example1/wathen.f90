@@ -21,6 +21,7 @@ module wathen_problem_mod
   public :: wathen_order
   public :: wathen_st
   public :: wathen_st_size
+  public :: wathen_pbu
 contains
 
   subroutine wathen_bandwidth ( nx, ny, l, d, u )
@@ -577,5 +578,139 @@ contains
     return
   end subroutine wathen_st_size
 
+  subroutine wathen_pbu ( nx, ny, n, seed, a )
+
+    !*****************************************************************************80
+    !
+    !! wathen_pbu  returns the Wathen matrix, using symmetric banded upper (PBU) storage.
+    !
+    !  Discussion:
+    !
+    !    The Wathen matrix is a finite element matrix which is sparse.
+    !
+    !    The entries of the matrix depend in part on a physical quantity
+    !    related to density.  That density is here assigned random values between
+    !    0 and 100.
+    !
+    !    The matrix order N is determined by the input quantities NX and NY,
+    !    which would usually be the number of elements in the X and Y directions.
+    !    The value of N is
+    !
+    !      N = 3*NX*NY + 2*NX + 2*NY + 1,
+    !
+    !    The matrix is the consistent mass matrix for a regular NX by NY grid
+    !    of 8 node serendipity elements.
+    !
+    !    The local element numbering is
+    !
+    !      3--2--1
+    !      |     |
+    !      4     8
+    !      |     |
+    !      5--6--7
+    !
+    !    Here is an illustration for NX = 3, NY = 2:
+    !
+    !     23-24-25-26-27-28-29
+    !      |     |     |     |
+    !     19    20    21    22
+    !      |     |     |     |
+    !     12-13-14-15-16-17-18
+    !      |     |     |     |
+    !      8     9    10    11
+    !      |     |     |     |
+    !      1--2--3--4--5--6--7
+    !
+    !    For this example, the total number of nodes is, as expected,
+    !
+    !      N = 3 * 3 * 2 + 2 * 2 + 2 * 3 + 1 = 29
+    !
+    !    The matrix is symmetric positive definite for any positive values of the
+    !    density RHO(X,Y).
+    !
+    !  Licensing:
+    !
+    !    This code is distributed under the GNU LGPL license.
+    !
+    !  Modified:
+    !
+    !    02 July 2014
+    !
+    !  Author:
+    !
+    !    John Burkardt
+    !
+    !  Reference:
+    !
+    !    Nicholas Higham,
+    !    Algorithm 694: A Collection of Test Matrices in MATLAB,
+    !    ACM Transactions on Mathematical Software,
+    !    Volume 17, Number 3, September 1991, pages 289-305.
+    !
+    !    Andrew Wathen,
+    !    Realistic eigenvalue bounds for the Galerkin mass matrix,
+    !    IMA Journal of Numerical Analysis,
+    !    Volume 7, Number 4, October 1987, pages 449-457.
+    !
+    !  Parameters:
+    !
+    !    Input, integer(ip) :: NX, NY, values which determine the size
+    !    of the matrix.
+    !
+    !    Input, integer(ip) :: N, the number of rows and columns.
+    !
+    !    Input/output, integer(ip) :: SEED, the random number seed.
+    !
+    !    Output, real(RP) A(3*NX+5,N), the matrix.
+    !
+    implicit none
+    integer(IP), intent(in)    :: nx
+    integer(IP), intent(in)    :: ny
+    integer(IP), intent(in)    :: n
+    integer(IP), intent(inout) :: seed
+    real(RP)   , intent(out)   :: a(3*nx+5,n)
+    integer(IP) :: i
+    integer(IP) :: ii
+    integer(IP) :: j
+    integer(IP) :: jj
+    integer(IP) :: kcol
+    integer(IP) :: krow
+    integer(IP) :: mu
+    integer(IP) :: node(8)
+    real(RP) :: rho
+    
+
+    mu = 3 * nx + 4
+
+    a(1:3*nx+5,1:n) = 0.0D+00
+
+    do j = 1, ny
+       do i = 1, nx
+          node(1) = 3 * j * nx + 2 * j + 2 * i + 1
+          node(2) = node(1) - 1
+          node(3) = node(1) - 2
+          node(4) = ( 3 * j - 1 ) * nx + 2 * j + i - 1
+          node(5) = ( 3 * j - 3 ) * nx + 2 * j + 2 * i - 3
+          node(6) = node(5) + 1
+          node(7) = node(5) + 2
+          node(8) = node(4) + 1
+
+          rho = 100.0D+00 * r8_uniform_01 ( seed )
+
+          do krow = 1, 8
+             do kcol = 1, 8
+                ii = node(krow);
+                jj = node(kcol);
+                if (ii <= jj) then
+                  a(ii-jj+mu+1,jj) = a(ii-jj+mu+1,jj) &
+                         + rho * EM(krow,kcol)
+                end if
+             end do
+          end do
+
+       end do
+    end do
+  end subroutine wathen_pbu
+  
 end module wathen_problem_mod
 
