@@ -1,5 +1,5 @@
 module wathen_problem_mod
-  use types
+  use types_mod
   use random_numbers_mod
   implicit none
   private

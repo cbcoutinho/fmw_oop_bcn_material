@@ -1,5 +1,5 @@
 module iterative_solver_mod
-  use types
+  use types_mod
   implicit none
   private
   public :: mv_gb, mv_ge, mv_st

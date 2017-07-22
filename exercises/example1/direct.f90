@@ -1,5 +1,5 @@
 module direct_solver_mod
-  use types
+  use types_mod
   implicit none
   private
   public :: dgbfa, dgbsl, dgefa, dgesl

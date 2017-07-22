@@ -1,6 +1,6 @@
 #include "mcheck.i90"
 program example1
-  use types
+  use types_mod
   use random_numbers_mod
   use wathen_problem_mod
   use direct_solver_mod

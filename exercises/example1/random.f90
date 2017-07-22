@@ -1,5 +1,5 @@
 module random_numbers_mod
-  use types
+  use types_mod
   implicit none
   private
   
