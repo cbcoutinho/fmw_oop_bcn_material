@@ -4,11 +4,10 @@ program exercise1
   use random_numbers_mod, only: r8_uniform_01, &
                                 r8vec_uniform_01
   use wathen_problem_mod, only: wathen_order, &
-                                wathen_ge, &
-                                wathen_gb, &
-                                wathen_st, &
-                                wathen_st_size, &
-                                wathen_bandwidth
+                                wathen_ge, wathen_gb, &
+                                wathen_st, wathen_st_size, &
+                                wathen_bandwidth, &
+                                wathen_pbu, cg_pbu, mv_pbu, dpbufa, dpbusl
   use direct_solver_mod, only: dgbfa, dgbsl, dgefa, dgesl
   use iterative_solver_mod, only: mv_gb, mv_ge, mv_st, &
                                 cg_gb, cg_ge, cg_st
@@ -16,6 +15,7 @@ program exercise1
 
   character(*), parameter :: FULL_MATRIX   = "full_matrix"
   character(*), parameter :: BAND_MATRIX   = "band_matrix"
+  character(*), parameter :: SYM_BAND_MATRIX   = "sym_band_matrix"
   character(*), parameter :: SPARSE_MATRIX = "sparse_matrix"
   character(*), parameter :: DIR_SOLVE     = "dir_solve"
   character(*), parameter :: CG_SOLVE      = "cg_solve"
