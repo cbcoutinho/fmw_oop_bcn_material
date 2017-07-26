@@ -81,6 +81,7 @@ contains
     u = 3 * nx + 4
     return
   end subroutine wathen_bandwidth
+
   subroutine wathen_gb ( nx, ny, n, seed, a )
 
     !*****************************************************************************80
@@ -217,6 +218,7 @@ contains
 
     return
   end subroutine wathen_gb
+
   subroutine wathen_ge ( nx, ny, n, seed, a )
 
     !*****************************************************************************80
@@ -344,6 +346,7 @@ contains
 
     return
   end subroutine wathen_ge
+
   subroutine wathen_order ( nx, ny, n )
 
     !*****************************************************************************80
@@ -394,6 +397,7 @@ contains
     n = 3 * nx * ny + 2 * nx + 2 * ny + 1
     return
   end subroutine wathen_order
+
   subroutine wathen_st ( nx, ny, nz_num, seed, row, col, a )
 
     !*****************************************************************************80
@@ -536,6 +540,7 @@ contains
 
     return
   end subroutine wathen_st
+
   subroutine wathen_st_size ( nx, ny, nz_num )
 
     !*****************************************************************************80

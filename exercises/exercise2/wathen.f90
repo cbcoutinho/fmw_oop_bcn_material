@@ -28,7 +28,7 @@ module wathen_problem_mod
 
 contains
 
-  subroutine wathen_setup( this,nx,ny, n, a )
+  subroutine wathen_setup( this, nx, ny, n, a )
     class(wathen_problem_t), intent(inout) :: this
     integer(IP)    , intent(in)    :: nx
     integer(IP)    , intent(in)    :: ny
@@ -43,7 +43,7 @@ contains
     call a%create(n,ml,mu,nz)
   end subroutine wathen_setup
 
-  subroutine wathen_fill ( this,seed, a )
+  subroutine wathen_fill ( this, seed, a )
 
     !*****************************************************************************80
     !
