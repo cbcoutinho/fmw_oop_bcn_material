@@ -19,7 +19,7 @@ SET(ROOT_PATH ${CMAKE_SOURCE_DIR})
 #SET(SRC_PATH ${ROOT_PATH}/Sources)
 #SET(LIB_PATH ${SRC_PATH}/Lib)
 #SET(DRIVERS_PATH ${SRC_PATH}/Drivers)
-SET(CMAKE_MODULE_PATH "${ROOT_PATH}/CMake/Modules") 
+SET(CMAKE_MODULE_PATH "${ROOT_PATH}/CMake/Modules")
 
 #################################################################
 # BUILD PATHS
@@ -50,7 +50,7 @@ GET_FILENAME_COMPONENT(Fortran_COMPILER_NAME ${CMAKE_Fortran_COMPILER} NAME)
 MESSAGE(STATUS "COMPILER INFO: ${CMAKE_Fortran_COMPILER_ID} - ${Fortran_COMPILER_NAME}")
 
 IF (${CMAKE_Fortran_COMPILER_ID} STREQUAL "GNU" OR Fortran_COMPILER_NAME MATCHES "gfortran*")
-  # gfortran 
+  # gfortran
   SET(FORTRAN_FLAGS "-fdefault-real-8 -ffree-line-length-0 -cpp -Wimplicit-interface ${EXTRA_FLAGS} ")
   SET(CMAKE_Fortran_FLAGS "${FORTRAN_FLAGS}" CACHE STRING "" FORCE)
   SET(CMAKE_Fortran_FLAGS_RELEASE "-O3" CACHE STRING "" FORCE)
