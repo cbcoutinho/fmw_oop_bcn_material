@@ -6,21 +6,21 @@ module wathen_problem_mod
   private
 
   real(RP), parameter :: EM(8,8) =  reshape ( [ &
-         6.0, -6.0,  2.0, -8.0,  3.0, -8.0,  2.0, -6.0, &
-         -6.0, 32.0, -6.0, 20.0, -8.0, 16.0, -8.0, 20.0, &
-         2.0, -6.0,  6.0, -6.0,  2.0, -8.0,  3.0, -8.0, &
-         -8.0, 20.0, -6.0, 32.0, -6.0, 20.0, -8.0, 16.0, &
-         3.0, -8.0,  2.0, -6.0,  6.0, -6.0,  2.0, -8.0, &
-         -8.0, 16.0, -8.0, 20.0, -6.0, 32.0, -6.0, 20.0, &
-         2.0, -8.0,  3.0, -8.0,  2.0, -6.0,  6.0, -6.0, &
-         -6.0, 20.0, -8.0, 16.0, -8.0, 20.0, -6.0, 32.0 ], &
-         [8, 8] )
+  6.0, -6.0,  2.0, -8.0,  3.0, -8.0,  2.0, -6.0, &
+  -6.0, 32.0, -6.0, 20.0, -8.0, 16.0, -8.0, 20.0, &
+  2.0, -6.0,  6.0, -6.0,  2.0, -8.0,  3.0, -8.0, &
+  -8.0, 20.0, -6.0, 32.0, -6.0, 20.0, -8.0, 16.0, &
+  3.0, -8.0,  2.0, -6.0,  6.0, -6.0,  2.0, -8.0, &
+  -8.0, 16.0, -8.0, 20.0, -6.0, 32.0, -6.0, 20.0, &
+  2.0, -8.0,  3.0, -8.0,  2.0, -6.0,  6.0, -6.0, &
+  -6.0, 20.0, -8.0, 16.0, -8.0, 20.0, -6.0, 32.0 ], &
+  [8, 8] )
 
 
   type wathen_problem_t
     private
     integer(IP) :: nx,ny
-    contains
+  contains
     procedure :: setup    => wathen_setup
     procedure :: assembly => wathen_fill
   end type wathen_problem_t
@@ -57,15 +57,15 @@ contains
 
     ! Esta mierda hay que hacerla bien!!!
     real ( kind = 8 ), dimension ( 8, 8 ), save :: em =  reshape ( (/ &
-         6.0, -6.0,  2.0, -8.0,  3.0, -8.0,  2.0, -6.0, &
-         -6.0, 32.0, -6.0, 20.0, -8.0, 16.0, -8.0, 20.0, &
-         2.0, -6.0,  6.0, -6.0,  2.0, -8.0,  3.0, -8.0, &
-         -8.0, 20.0, -6.0, 32.0, -6.0, 20.0, -8.0, 16.0, &
-         3.0, -8.0,  2.0, -6.0,  6.0, -6.0,  2.0, -8.0, &
-         -8.0, 16.0, -8.0, 20.0, -6.0, 32.0, -6.0, 20.0, &
-         2.0, -8.0,  3.0, -8.0,  2.0, -6.0,  6.0, -6.0, &
-         -6.0, 20.0, -8.0, 16.0, -8.0, 20.0, -6.0, 32.0 /), &
-         (/ 8, 8 /) )
+    6.0, -6.0,  2.0, -8.0,  3.0, -8.0,  2.0, -6.0, &
+    -6.0, 32.0, -6.0, 20.0, -8.0, 16.0, -8.0, 20.0, &
+    2.0, -6.0,  6.0, -6.0,  2.0, -8.0,  3.0, -8.0, &
+    -8.0, 20.0, -6.0, 32.0, -6.0, 20.0, -8.0, 16.0, &
+    3.0, -8.0,  2.0, -6.0,  6.0, -6.0,  2.0, -8.0, &
+    -8.0, 16.0, -8.0, 20.0, -6.0, 32.0, -6.0, 20.0, &
+    2.0, -8.0,  3.0, -8.0,  2.0, -6.0,  6.0, -6.0, &
+    -6.0, 20.0, -8.0, 16.0, -8.0, 20.0, -6.0, 32.0 /), &
+    (/ 8, 8 /) )
     integer(IP) :: i
     integer(IP) :: j
     integer(IP) :: kcol
@@ -75,36 +75,36 @@ contains
     real ( kind = 8 ) rho
 
     do j = 1, this%ny
-       do i = 1, this%nx
+      do i = 1, this%nx
 
-          node(1) = 3 * j * this%nx + 2 * j + 2 * i + 1
-          node(2) = node(1) - 1
-          node(3) = node(1) - 2
-          node(4) = ( 3 * j - 1 ) * this%nx + 2 * j + i - 1
-          node(5) = ( 3 * j - 3 ) * this%nx + 2 * j + 2 * i - 3
-          node(6) = node(5) + 1
-          node(7) = node(5) + 2
-          node(8) = node(4) + 1
+        node(1) = 3 * j * this%nx + 2 * j + 2 * i + 1
+        node(2) = node(1) - 1
+        node(3) = node(1) - 2
+        node(4) = ( 3 * j - 1 ) * this%nx + 2 * j + i - 1
+        node(5) = ( 3 * j - 3 ) * this%nx + 2 * j + 2 * i - 3
+        node(6) = node(5) + 1
+        node(7) = node(5) + 2
+        node(8) = node(4) + 1
 
-          rho = 100.0D+00 * r8_uniform_01 ( seed )
+        rho = 100.0D+00 * r8_uniform_01 ( seed )
 
-          do krow = 1, 8
-             do kcol = 1, 8
-                call a%assembly(node(krow),node(kcol),rho * em(krow,kcol))
-             end do
+        do krow = 1, 8
+          do kcol = 1, 8
+            call a%assembly(node(krow),node(kcol),rho * em(krow,kcol))
           end do
+        end do
 
-       end do
+      end do
     end do
 
     return
   end subroutine wathen_fill
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!
-! Legacy code
-!
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  !
+  ! Legacy code
+  !
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   subroutine wathen_bandwidth ( nx, ny, l, d, u )
 
@@ -269,29 +269,29 @@ contains
     a(1:9*nx+13,1:n) = 0.0D+00
 
     do j = 1, ny
-       do i = 1, nx
+      do i = 1, nx
 
-          node(1) = 3 * j * nx + 2 * j + 2 * i + 1
-          node(2) = node(1) - 1
-          node(3) = node(1) - 2
-          node(4) = ( 3 * j - 1 ) * nx + 2 * j + i - 1
-          node(5) = ( 3 * j - 3 ) * nx + 2 * j + 2 * i - 3
-          node(6) = node(5) + 1
-          node(7) = node(5) + 2
-          node(8) = node(4) + 1
+        node(1) = 3 * j * nx + 2 * j + 2 * i + 1
+        node(2) = node(1) - 1
+        node(3) = node(1) - 2
+        node(4) = ( 3 * j - 1 ) * nx + 2 * j + i - 1
+        node(5) = ( 3 * j - 3 ) * nx + 2 * j + 2 * i - 3
+        node(6) = node(5) + 1
+        node(7) = node(5) + 2
+        node(8) = node(4) + 1
 
-          rho = 100.0D+00 * r8_uniform_01 ( seed )
+        rho = 100.0D+00 * r8_uniform_01 ( seed )
 
-          do krow = 1, 8
-             do kcol = 1, 8
-                ii = node(krow);
-                jj = node(kcol);
-                a(ii-jj+ml+mu+1,jj) = a(ii-jj+ml+mu+1,jj) &
-                     + rho * EM(krow,kcol)
-             end do
+        do krow = 1, 8
+          do kcol = 1, 8
+            ii = node(krow);
+            jj = node(kcol);
+            a(ii-jj+ml+mu+1,jj) = a(ii-jj+ml+mu+1,jj) &
+            + rho * EM(krow,kcol)
           end do
+        end do
 
-       end do
+      end do
     end do
 
     return
@@ -398,27 +398,27 @@ contains
     a(1:n,1:n) = 0.0D+00
 
     do j = 1, ny
-       do i = 1, nx
+      do i = 1, nx
 
-          node(1) = 3 * j * nx + 2 * j + 2 * i + 1
-          node(2) = node(1) - 1
-          node(3) = node(1) - 2
-          node(4) = ( 3 * j - 1 ) * nx + 2 * j + i - 1
-          node(5) = ( 3 * j - 3 ) * nx + 2 * j + 2 * i - 3
-          node(6) = node(5) + 1
-          node(7) = node(5) + 2
-          node(8) = node(4) + 1
+        node(1) = 3 * j * nx + 2 * j + 2 * i + 1
+        node(2) = node(1) - 1
+        node(3) = node(1) - 2
+        node(4) = ( 3 * j - 1 ) * nx + 2 * j + i - 1
+        node(5) = ( 3 * j - 3 ) * nx + 2 * j + 2 * i - 3
+        node(6) = node(5) + 1
+        node(7) = node(5) + 2
+        node(8) = node(4) + 1
 
-          rho = 100.0D+00 * r8_uniform_01 ( seed )
+        rho = 100.0D+00 * r8_uniform_01 ( seed )
 
-          do krow = 1, 8
-             do kcol = 1, 8
-                a(node(krow),node(kcol)) = a(node(krow),node(kcol)) &
-                     + rho * EM(krow,kcol)
-             end do
+        do krow = 1, 8
+          do kcol = 1, 8
+            a(node(krow),node(kcol)) = a(node(krow),node(kcol)) &
+            + rho * EM(krow,kcol)
           end do
+        end do
 
-       end do
+      end do
     end do
 
     return
@@ -591,26 +591,26 @@ contains
 
     k = 0
     do j = 1, ny
-       do i = 1, nx
-          node(1) = 3 * j * nx + 2 * j + 2 * i + 1
-          node(2) = node(1) - 1
-          node(3) = node(1) - 2
-          node(4) = ( 3 * j - 1 ) * nx + 2 * j + i - 1
-          node(5) = ( 3 * j - 3 ) * nx + 2 * j + 2 * i - 3
-          node(6) = node(5) + 1
-          node(7) = node(5) + 2
-          node(8) = node(4) + 1
+      do i = 1, nx
+        node(1) = 3 * j * nx + 2 * j + 2 * i + 1
+        node(2) = node(1) - 1
+        node(3) = node(1) - 2
+        node(4) = ( 3 * j - 1 ) * nx + 2 * j + i - 1
+        node(5) = ( 3 * j - 3 ) * nx + 2 * j + 2 * i - 3
+        node(6) = node(5) + 1
+        node(7) = node(5) + 2
+        node(8) = node(4) + 1
 
-          rho = 100.0D+00 * r8_uniform_01 ( seed )
-          do krow = 1, 8
-             do kcol = 1, 8
-                k = k + 1
-                row(k) = node(krow)
-                col(k) = node(kcol)
-                a(k) = rho * EM(krow,kcol)
-             end do
+        rho = 100.0D+00 * r8_uniform_01 ( seed )
+        do krow = 1, 8
+          do kcol = 1, 8
+            k = k + 1
+            row(k) = node(krow)
+            col(k) = node(kcol)
+            a(k) = rho * EM(krow,kcol)
           end do
-       end do
+        end do
+      end do
     end do
 
     return
