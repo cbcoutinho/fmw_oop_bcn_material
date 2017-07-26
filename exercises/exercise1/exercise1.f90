@@ -6,13 +6,13 @@ program exercise1
   use direct_solver_mod
   use iterative_solver_mod
   implicit none
-  
-  character(:), parameter :: FULL_MATRIX   = "full_matrix"
-  character(:), parameter :: BAND_MATRIX   = "band_matrix"
-  character(:), parameter :: SPARSE_MATRIX = "sparse_matrix"
-  character(:), parameter :: DIR_SOLVE     = "dir_solve"
-  character(:), parameter :: CG_SOLVE      = "cg_solve"
-  
+
+  character(*), parameter :: FULL_MATRIX   = "full_matrix"
+  character(*), parameter :: BAND_MATRIX   = "band_matrix"
+  character(*), parameter :: SPARSE_MATRIX = "sparse_matrix"
+  character(*), parameter :: DIR_SOLVE     = "dir_solve"
+  character(*), parameter :: CG_SOLVE      = "cg_solve"
+
   character(:), allocatable :: matrix_type, solver_type
   integer (IP) :: nz_num
   integer (IP), allocatable :: row(:)
@@ -38,7 +38,7 @@ program exercise1
   real (RP), allocatable :: x2(:)
 
   ! Read from command line:
-  call read_and_check_command_line_parameters(  NX, NY, matrix_type, solver_type ) 
+  call read_and_check_command_line_parameters(  NX, NY, matrix_type, solver_type )
 
   ! Write information
   write ( *, '(a,i6)' ) '  Elements in X direction NX = ', nx
@@ -122,55 +122,55 @@ program exercise1
 
   !  Compute the maximum solution error.
   e = maxval ( abs ( x1 - x2 ) )
-  write ( *, '(a,g14.6)' ) '  Maximum solution error is ', e 
+  write ( *, '(a,g14.6)' ) '  Maximum solution error is ', e
 
   !  Free memory.
   deallocate ( b )
   deallocate ( x1 )
   deallocate ( x2 )
-  
+
 contains
 
-   subroutine read_and_check_command_line_parameters(  NX, NY, matrix_type, solver_type ) 
+   subroutine read_and_check_command_line_parameters(  NX, NY, matrix_type, solver_type )
      implicit none
      integer(IP)              , intent(out)   :: NX
      integer(IP)              , intent(out)   :: NY
      character(:), allocatable, intent(inout) :: matrix_type
      character(:), allocatable, intent(inout) :: solver_type
-     
-     character(:), parameter :: USAGE_ERROR_MSG       = "Usage: exercise1 NX NY matrix_type solver_type"
-     character(:), parameter :: MATRIX_TYPE_ERROR_MSG = "matrix_type MUST BE either [full_matrix|band_matrix|sparse_matrix]"
-     character(:), parameter :: SOLVER_TYPE_ERROR_MSG = "solver_type MUST BE either [dir_solve|cg_solve]"
-     character(:), parameter :: MATRIX_SOLVER_TYPE_ERROR_MSG = "matrix/solver type combination not allowed"
-     character(:), parameter :: IO_ERROR_MSG = "Error while reading NX or NY, these should be integers!!!"
+
+     character(*), parameter :: USAGE_ERROR_MSG       = "Usage: exercise1 NX NY matrix_type solver_type"
+     character(*), parameter :: MATRIX_TYPE_ERROR_MSG = "matrix_type MUST BE either [full_matrix|band_matrix|sparse_matrix]"
+     character(*), parameter :: SOLVER_TYPE_ERROR_MSG = "solver_type MUST BE either [dir_solve|cg_solve]"
+     character(*), parameter :: MATRIX_SOLVER_TYPE_ERROR_MSG = "matrix/solver type combination not allowed"
+     character(*), parameter :: IO_ERROR_MSG = "Error while reading NX or NY, these should be integers!!!"
      CHARACTER(len=256) :: arg
      integer(IP) :: istat
-     
+
      if (allocated(matrix_type)) deallocate(matrix_type)
      if (allocated(solver_type)) deallocate(solver_type)
-     
-     ! Recall that Fortran 2003 allows the retrieval of command line 
+
+     ! Recall that Fortran 2003 allows the retrieval of command line
      ! arguments passed to the code
      CALL get_command_argument(1, arg)
      mcheck(len(trim(arg))>0, USAGE_ERROR_MSG)
      read(arg,*,iostat=istat) NX
      mcheck(istat==0, IO_ERROR_MSG)
-     
+
      CALL get_command_argument(2, arg)
      mcheck(len(trim(arg))>0, USAGE_ERROR_MSG)
      read(arg,*,iostat=istat) NY
      mcheck(istat==0, IO_ERROR_MSG)
-     
+
      CALL get_command_argument(3, arg)
      mcheck(len(trim(arg))>0, USAGE_ERROR_MSG)
      mcheck(trim(arg) == FULL_MATRIX .or. trim(arg) == BAND_MATRIX .or. trim(arg) == SPARSE_MATRIX, MATRIX_TYPE_ERROR_MSG)
      matrix_type = trim(arg)
-     
+
      CALL get_command_argument(4, arg)
      mcheck(len(trim(arg))>0, USAGE_ERROR_MSG)
      mcheck(trim(arg) == DIR_SOLVE .or. trim(arg) == CG_SOLVE, SOLVER_TYPE_ERROR_MSG)
      solver_type = trim(arg)
-     mcheck ( .not. (matrix_type == SPARSE_MATRIX .and. solver_type == DIR_SOLVE), MATRIX_SOLVER_TYPE_ERROR_MSG)     
+     mcheck ( .not. (matrix_type == SPARSE_MATRIX .and. solver_type == DIR_SOLVE), MATRIX_SOLVER_TYPE_ERROR_MSG)
    end subroutine read_and_check_command_line_parameters
 
 end program exercise1

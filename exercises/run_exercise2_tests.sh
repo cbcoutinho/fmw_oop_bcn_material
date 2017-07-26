@@ -1,5 +1,5 @@
 #!/bin/bash
-PATH_TO_EXERCISE2=build_exercise2/bin/exercise2
+PATH_TO_EXERCISE2=exercise2/build/bin/exercise2
 
 #Full matrix storage tests
 echo "*************************"
