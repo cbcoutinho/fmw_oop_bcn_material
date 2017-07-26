@@ -104,7 +104,7 @@ subroutine wathen_pbu ( nx, ny, n, seed, a )
     integer(IP) :: mu
     integer(IP) :: node(8)
     real(RP) :: rho
-    
+
 
     mu = 3 * nx + 4
 
@@ -165,7 +165,7 @@ subroutine wathen_pbu ( nx, ny, n, seed, a )
 !
 !  Licensing:
 !
-!    This code is distributed under the GNU LGPL license. 
+!    This code is distributed under the GNU LGPL license.
 !
 !  Modified:
 !
@@ -208,10 +208,10 @@ subroutine wathen_pbu ( nx, ny, n, seed, a )
   real(RP)   , intent(in)    :: a(mu+1,n)
   real(RP)   , intent(in)    :: b(n)
   real(RP)   , intent(inout) :: x(n)
-  
+
   real(RP) :: alpha
   real(RP) :: ap(n)
-  
+
   real(RP) :: beta
   integer(IP) :: it
   real(RP) :: p(n)
@@ -219,7 +219,7 @@ subroutine wathen_pbu ( nx, ny, n, seed, a )
   real(RP) :: pr
   real(RP) :: r(n)
   real(RP) :: rap
-  
+
 !
 !  Initialize
 !    AP = A * x,
@@ -301,7 +301,7 @@ subroutine mv_pbu ( m, n, mu, a, x, b )
 !
 !  Licensing:
 !
-!    This code is distributed under the GNU LGPL license. 
+!    This code is distributed under the GNU LGPL license.
 !
 !  Modified:
 !
@@ -333,11 +333,11 @@ subroutine mv_pbu ( m, n, mu, a, x, b )
   real(RP)   , intent(in)    :: a(mu+1,n)
   real(RP)   , intent(in)    :: x(n)
   real(RP)   , intent(inout) :: b(n)
-  
+
   integer(IP) :: i
   integer(IP) :: ieqn
   integer(IP) :: j
-  
+
 !
 !  Multiply X by the diagonal of the matrix.
 !
@@ -382,7 +382,7 @@ subroutine dpbufa ( n, mu, a, info )
 !
 !  Licensing:
 !
-!    This code is distributed under the GNU LGPL license. 
+!    This code is distributed under the GNU LGPL license.
 !
 !  Modified:
 !
@@ -409,7 +409,7 @@ subroutine dpbufa ( n, mu, a, info )
 !    Input, integer(IP) MU, the number of superdiagonals of the matrix.
 !    MU must be at least 0, and no more than N-1.
 !
-!    Input/output, real(RP) A(MU+1,N), the N by N matrix, stored 
+!    Input/output, real(RP) A(MU+1,N), the N by N matrix, stored
 !    in LINPACK positive definite symmetric band matrix storage.
 !    On output, A contains information describing a factored form
 !    of the matrix, that can be used to solve linear systems
@@ -425,9 +425,9 @@ subroutine dpbufa ( n, mu, a, info )
   integer(IP), intent(in)    :: mu
   real(RP)   , intent(inout) :: a(mu+1,n)
   integer(IP) :: info
-  
+
   integer(IP) :: ik
-  
+
   integer(IP) :: j
   integer(IP) :: jk
   integer(IP) :: k
@@ -469,7 +469,7 @@ subroutine dpbufa ( n, mu, a, info )
 
   return
 end subroutine dpbufa
-  
+
 subroutine dpbusl ( n, mu, a_lu, b )
 !*****************************************************************************80
 !
@@ -489,7 +489,7 @@ subroutine dpbusl ( n, mu, a_lu, b )
 !
 !  Licensing:
 !
-!    This code is distributed under the GNU LGPL license. 
+!    This code is distributed under the GNU LGPL license.
 !
 !  Modified:
 !
@@ -529,7 +529,7 @@ subroutine dpbusl ( n, mu, a_lu, b )
   integer(IP), intent(in)    :: mu
   real(RP)   , intent(in)    :: a_lu(mu+1,n)
   real(RP)   , intent(inout) :: b(n)
-  
+
   integer(IP) :: i
   integer(IP) :: ilo
   integer(IP) :: k
