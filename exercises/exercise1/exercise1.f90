@@ -1,10 +1,17 @@
 #include "mcheck.i90"
 program exercise1
-  use types_mod
-  use random_numbers_mod
-  use wathen_problem_mod
-  use direct_solver_mod
-  use iterative_solver_mod
+  use types_mod, only: IP, RP
+  use random_numbers_mod, only: r8_uniform_01, &
+                                r8vec_uniform_01
+  use wathen_problem_mod, only: wathen_order, &
+                                wathen_ge, &
+                                wathen_gb, &
+                                wathen_st, &
+                                wathen_st_size, &
+                                wathen_bandwidth
+  use direct_solver_mod, only: dgbfa, dgbsl, dgefa, dgesl
+  use iterative_solver_mod, only: mv_gb, mv_ge, mv_st, &
+                                cg_gb, cg_ge, cg_st
   implicit none
 
   character(*), parameter :: FULL_MATRIX   = "full_matrix"
