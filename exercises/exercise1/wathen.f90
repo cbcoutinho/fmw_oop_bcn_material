@@ -3,7 +3,7 @@ module wathen_problem_mod
   use random_numbers_mod
   implicit none
   private
-  
+
   real(RP), parameter :: EM(8,8) =  reshape ( [ &
          6.0, -6.0,  2.0, -8.0,  3.0, -8.0,  2.0, -6.0, &
          -6.0, 32.0, -6.0, 20.0, -8.0, 16.0, -8.0, 20.0, &
@@ -14,14 +14,18 @@ module wathen_problem_mod
          2.0, -8.0,  3.0, -8.0,  2.0, -6.0,  6.0, -6.0, &
          -6.0, 20.0, -8.0, 16.0, -8.0, 20.0, -6.0, 32.0 ], &
          [8, 8] )
-  
+
   public :: wathen_bandwidth
   public :: wathen_gb
   public :: wathen_ge
   public :: wathen_order
   public :: wathen_st
   public :: wathen_st_size
+
+  public :: wathen_pbu, cg_pbu, mv_pbu, dpbufa, dpbusl
 contains
+
+#include "../symmetric_band_matrix_subroutines/symmetric_band_matrix_subroutines.f90"
 
   subroutine wathen_bandwidth ( nx, ny, l, d, u )
 
@@ -63,7 +67,7 @@ contains
     !
     !    Input, integer(ip) :: NX, NY, values which determine the size of A.
     !
-    !    Output, integer(ip) :: L, D, U, the lower, diagonal, and upper 
+    !    Output, integer(ip) :: L, D, U, the lower, diagonal, and upper
     !    bandwidths of the matrix,
     !
     implicit none
@@ -178,7 +182,7 @@ contains
     integer(IP) :: mu
     integer(IP) :: node(8)
     real(RP) :: rho
-    
+
 
     ml = 3 * nx + 4
     mu = 3 * nx + 4
@@ -289,7 +293,7 @@ contains
     !
     !  Parameters:
     !
-    !    Input, integer(ip) :: NX, NY, values which determine the size 
+    !    Input, integer(ip) :: NX, NY, values which determine the size
     !    of the matrix.
     !
     !    Input, integer(ip) :: N, the number of rows and columns.
@@ -304,14 +308,14 @@ contains
     integer(IP), intent(in)    :: n
     integer(IP), intent(inout) :: seed
     real(RP)   , intent(out)   :: a(n,n)
-    
+
     integer(IP) :: i
     integer(IP) :: j
     integer(IP) :: kcol
     integer(IP) :: krow
     integer(IP) :: node(8)
     real(RP) :: rho
-    
+
     a(1:n,1:n) = 0.0D+00
 
     do j = 1, ny
@@ -383,7 +387,7 @@ contains
     !
     implicit none
 
-    
+
     integer(IP), intent(in)  :: nx
     integer(IP), intent(in)  :: ny
     integer(IP), intent(out) :: n
@@ -471,15 +475,15 @@ contains
     !
     !  Parameters:
     !
-    !    Input, integer(ip) :: NX, NY, values which determine the size of 
+    !    Input, integer(ip) :: NX, NY, values which determine the size of
     !    the matrix.
     !
-    !    Input, integer(ip) :: NZ_NUM, the number of values used to 
+    !    Input, integer(ip) :: NZ_NUM, the number of values used to
     !    describe the matrix.
     !
     !    Input/output, integer(ip) :: SEED, the random number seed.
     !
-    !    Output, integer(ip) :: ROW(NZ_NUM), COL(NZ_NUM), the row and 
+    !    Output, integer(ip) :: ROW(NZ_NUM), COL(NZ_NUM), the row and
     !    column indices of the nonzero entries.
     !
     !    Output, real(RP) A(NZ_NUM), the nonzero entries of the matrix.
@@ -493,7 +497,7 @@ contains
     integer(IP), intent(out)   :: row(nz_num)
     integer(IP), intent(out)   :: col(nz_num)
     real(RP)   , intent(out)   :: a(nz_num)
-    
+
     integer(IP) :: i
     integer(IP) :: j
     integer(IP) :: k
@@ -501,7 +505,7 @@ contains
     integer(IP) :: krow
     integer(IP) :: node(8)
     real(RP) :: rho
-    
+
     row(1:nz_num) = 0
     col(1:nz_num) = 0
     a(1:nz_num) = 0.0D+00
@@ -578,4 +582,3 @@ contains
   end subroutine wathen_st_size
 
 end module wathen_problem_mod
-
