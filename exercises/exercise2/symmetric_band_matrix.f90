@@ -49,7 +49,7 @@ contains
     class(symmetric_band_matrix_t), intent(in)    :: this
     real(rp)            , intent(in)    :: x(:)
     real(rp)            , intent(inout) :: y(:)
-    call mv_pbu ( this%get_size(), this%get_size(), this%mu, this%a, x, y )
+    call mv_pbu ( this%get_size(), this%mu, this%a, x, y )
   end subroutine symmetric_band_matrix_apply
 
   subroutine symmetric_band_matrix_factorize(this, factors, pivots) 
@@ -97,7 +97,7 @@ contains
 ! Legacy code
 !
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-subroutine mv_pbu ( m, n, mu, a, x, b )
+subroutine mv_pbu ( n, mu, a, x, b )
 
 !*****************************************************************************80
 !
@@ -143,7 +143,6 @@ subroutine mv_pbu ( m, n, mu, a, x, b )
 !
   implicit none
 
-  integer(IP), intent(in)    :: m
   integer(IP), intent(in)    :: n
   integer(IP), intent(in)    :: mu
   real(RP)   , intent(in)    :: a(mu+1,n)

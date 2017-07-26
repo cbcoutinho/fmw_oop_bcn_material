@@ -127,7 +127,7 @@ program example1
      call wathen_pbu ( nx, ny, n, seed, a )
      !  Compute the corresponding right hand side B.
      allocate ( b(1:n) )
-     call mv_pbu ( n, n, mu, a, x1, b )
+     call mv_pbu ( n, mu, a, x1, b )
      !  Solve the linear system.
      allocate ( x2(1:n) )
      if ( solver_type == DIR_SOLVE ) then

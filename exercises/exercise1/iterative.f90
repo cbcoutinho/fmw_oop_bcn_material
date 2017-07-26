@@ -657,7 +657,7 @@ contains
 !    R  = b - A * x,
 !    P  = b - A * x.
 !
-  call mv_pbu ( n, n, mu, a, x, ap )
+  call mv_pbu ( n, mu, a, x, ap )
 
   r(1:n) = b(1:n) - ap(1:n)
   p(1:n) = b(1:n) - ap(1:n)
@@ -668,7 +668,7 @@ contains
 !
 !  Compute the matrix*vector product AP=A*P.
 !
-    call mv_pbu ( n, n, mu, a, p, ap )
+    call mv_pbu ( n, mu, a, p, ap )
 !
 !  Compute the dot products
 !    PAP = P*AP,
@@ -710,7 +710,7 @@ contains
   return
 end subroutine cg_pbu
   
-  subroutine mv_pbu ( m, n, mu, a, x, b )
+  subroutine mv_pbu ( n, mu, a, x, b )
 
 !*****************************************************************************80
 !
@@ -756,7 +756,6 @@ end subroutine cg_pbu
 !
   implicit none
 
-  integer(IP), intent(in)    :: m
   integer(IP), intent(in)    :: n
   integer(IP), intent(in)    :: mu
   real(RP)   , intent(in)    :: a(mu+1,n)
