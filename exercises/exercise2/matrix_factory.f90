@@ -35,8 +35,8 @@ contains
       allocate( dense_matrix_t :: matrix )
     case (BAND_MATRIX)
       allocate( band_matrix_t :: matrix )
-    case (SYM_BAND_MATRIX)
-      allocate( sym_band_matrix_t :: matrix )
+    ! case (SYM_BAND_MATRIX)
+    !   allocate( sym_band_matrix_t :: matrix )
     case (SPARSE_MATRIX)
       allocate( sparse_matrix_t :: matrix )
     end select
