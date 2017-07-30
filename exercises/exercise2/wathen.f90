@@ -28,6 +28,8 @@ module wathen_problem_mod
 
 contains
 
+#include "../symmetric_band_matrix_subroutines/symmetric_band_matrix_subroutines.f90"
+
   subroutine wathen_setup( this, nx, ny, n, a )
     class(wathen_problem_t), intent(inout) :: this
     integer(IP)    , intent(in)    :: nx
