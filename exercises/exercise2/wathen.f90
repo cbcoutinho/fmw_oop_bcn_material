@@ -26,6 +26,8 @@ module wathen_problem_mod
     procedure :: assembly => wathen_fill
   end type wathen_problem_t
 
+  public :: mv_pbu, dpbufa, dpbusl
+
 contains
 
 #include "../symmetric_band_matrix_subroutines/symmetric_band_matrix_subroutines.f90"
@@ -58,7 +60,7 @@ contains
     class(matrix_t)        , intent(inout) :: a
 
     ! Esta mierda hay que hacerla bien!!!
-    real ( kind = 8 ), dimension ( 8, 8 ), save :: em =  reshape ( (/ &
+    real ( kind = 8 ), dimension ( 8, 8 ), save :: em =  reshape ( [ &
     6.0, -6.0,  2.0, -8.0,  3.0, -8.0,  2.0, -6.0, &
     -6.0, 32.0, -6.0, 20.0, -8.0, 16.0, -8.0, 20.0, &
     2.0, -6.0,  6.0, -6.0,  2.0, -8.0,  3.0, -8.0, &
@@ -66,8 +68,8 @@ contains
     3.0, -8.0,  2.0, -6.0,  6.0, -6.0,  2.0, -8.0, &
     -8.0, 16.0, -8.0, 20.0, -6.0, 32.0, -6.0, 20.0, &
     2.0, -8.0,  3.0, -8.0,  2.0, -6.0,  6.0, -6.0, &
-    -6.0, 20.0, -8.0, 16.0, -8.0, 20.0, -6.0, 32.0 /), &
-    (/ 8, 8 /) )
+    -6.0, 20.0, -8.0, 16.0, -8.0, 20.0, -6.0, 32.0 ], &
+    [ 8, 8 ] )
     integer(IP) :: i
     integer(IP) :: j
     integer(IP) :: kcol
@@ -162,6 +164,7 @@ contains
     u = 3 * nx + 4
     return
   end subroutine wathen_bandwidth
+
   subroutine wathen_gb ( nx, ny, n, seed, a )
 
     !*****************************************************************************80
@@ -298,6 +301,7 @@ contains
 
     return
   end subroutine wathen_gb
+
   subroutine wathen_ge ( nx, ny, n, seed, a )
 
     !*****************************************************************************80
@@ -425,6 +429,7 @@ contains
 
     return
   end subroutine wathen_ge
+
   subroutine wathen_order ( nx, ny, n )
 
     !*****************************************************************************80
@@ -475,6 +480,7 @@ contains
     n = 3 * nx * ny + 2 * nx + 2 * ny + 1
     return
   end subroutine wathen_order
+
   subroutine wathen_st ( nx, ny, nz_num, seed, row, col, a )
 
     !*****************************************************************************80
@@ -617,6 +623,7 @@ contains
 
     return
   end subroutine wathen_st
+
   subroutine wathen_st_size ( nx, ny, nz_num )
 
     !*****************************************************************************80
