@@ -87,10 +87,10 @@ contains
     integer(IP) :: k
 
     if ( seed == 0 ) then
-       write ( *, '(a)' ) ' '
-       write ( *, '(a)' ) 'R8_UNIFORM_01 - Fatal error!'
-       write ( *, '(a)' ) '  Input value of SEED = 0.'
-       stop 1
+      write ( *, '(a)' ) ' '
+      write ( *, '(a)' ) 'R8_UNIFORM_01 - Fatal error!'
+      write ( *, '(a)' ) '  Input value of SEED = 0.'
+      stop 1
     end if
 
     k = seed / 127773
@@ -98,7 +98,7 @@ contains
     seed = 16807 * ( seed - k * 127773 ) - k * 2836
 
     if ( seed < 0 ) then
-       seed = seed + I4_HUGE
+      seed = seed + I4_HUGE
     end if
 
     r8_uniform_01 = real ( seed, kind = 8 ) * 4.656612875D-10
@@ -169,19 +169,19 @@ contains
 
     do j = 1, n
 
-       do i = 1, m
+      do i = 1, m
 
-          k = seed / 127773
+        k = seed / 127773
 
-          seed = 16807 * ( seed - k * 127773 ) - k * 2836
+        seed = 16807 * ( seed - k * 127773 ) - k * 2836
 
-          if ( seed < 0 ) then
-             seed = seed + I4_HUGE
-          end if
+        if ( seed < 0 ) then
+          seed = seed + I4_HUGE
+        end if
 
-          r(i,j) = real ( seed, kind = 8 ) * 4.656612875D-10
+        r(i,j) = real ( seed, kind = 8 ) * 4.656612875D-10
 
-       end do
+      end do
     end do
 
     return
@@ -229,7 +229,7 @@ contains
     write ( *, '(a)' ) ' '
 
     do i = 1, n
-       write ( *, '(2x,i8,a,1x,g16.8)' ) i, ':', a(i)
+      write ( *, '(2x,i8,a,1x,g16.8)' ) i, ':', a(i)
     end do
 
     return
@@ -290,23 +290,23 @@ contains
     integer(IP) :: i
     integer(IP) :: k
     if ( seed == 0 ) then
-       write ( *, '(a)' ) ' '
-       write ( *, '(a)' ) 'R8VEC_UNIFORM_01 - Fatal error!'
-       write ( *, '(a)' ) '  Input value of SEED = 0.'
-       stop 1
+      write ( *, '(a)' ) ' '
+      write ( *, '(a)' ) 'R8VEC_UNIFORM_01 - Fatal error!'
+      write ( *, '(a)' ) '  Input value of SEED = 0.'
+      stop 1
     end if
 
     do i = 1, n
 
-       k = seed / 127773
+      k = seed / 127773
 
-       seed = 16807 * ( seed - k * 127773 ) - k * 2836
+      seed = 16807 * ( seed - k * 127773 ) - k * 2836
 
-       if ( seed < 0 ) then
-          seed = seed + 2147483647
-       end if
+      if ( seed < 0 ) then
+        seed = seed + 2147483647
+      end if
 
-       r(i) = real ( seed, kind = 8 ) * 4.656612875D-10
+      r(i) = real ( seed, kind = 8 ) * 4.656612875D-10
 
     end do
 

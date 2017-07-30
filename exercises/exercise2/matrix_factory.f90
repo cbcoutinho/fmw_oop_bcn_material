@@ -31,9 +31,9 @@ contains
     end if
 
     mcheck(trim(matrix_type) == FULL_MATRIX .or. \
-      trim(matrix_type) == BAND_MATRIX .or. \
-      trim(matrix_type) == SYM_BAND_MATRIX .or. \
-      trim(matrix_type) == SPARSE_MATRIX, MATRIX_TYPE_ERROR_MSG)
+    trim(matrix_type) == BAND_MATRIX .or. \
+    trim(matrix_type) == SYM_BAND_MATRIX .or. \
+    trim(matrix_type) == SPARSE_MATRIX, MATRIX_TYPE_ERROR_MSG)
 
     select case ( trim(matrix_type) )
     case (FULL_MATRIX)

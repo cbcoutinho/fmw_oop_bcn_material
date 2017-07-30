@@ -8,14 +8,14 @@ module direct_solver_mod
 
   public :: direct_solver_t
   type, extends(solver_t) :: direct_solver_t
-     private
-     class(matrix_t), allocatable :: factors
-     integer(ip)    , allocatable :: pivots(:)
-     real(rp)       , allocatable :: work(:)
-   contains
-     procedure  :: create => direct_solver_create
-     procedure  :: solve  => direct_solver_solve
-     procedure  :: free   => direct_solver_free
+    private
+    class(matrix_t), allocatable :: factors
+    integer(ip)    , allocatable :: pivots(:)
+    real(rp)       , allocatable :: work(:)
+  contains
+    procedure  :: create => direct_solver_create
+    procedure  :: solve  => direct_solver_solve
+    procedure  :: free   => direct_solver_free
   end type direct_solver_t
 
 

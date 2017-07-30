@@ -137,7 +137,7 @@ contains
     integer(IP) :: k
     real(RP) :: x(n)
 
-    b(1:m) = 0.0D+00
+    b(1:m) = 0.0_RP
     do k = 1, nz_num
        b(row(k)) = b(row(k)) + a(k) * x(col(k))
     end do

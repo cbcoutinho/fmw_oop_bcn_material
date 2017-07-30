@@ -215,7 +215,7 @@ contains
        !
        !  Zero pivot implies this column already triangularized.
        !
-       if ( a(l,k) == 0.0D+00 ) then
+       if ( a(l,k) == 0.0_RP ) then
           info = k
           cycle
        end if
@@ -230,7 +230,7 @@ contains
        !
        !  Compute multipliers.
        !
-       t = -1.0D+00 / a(k,k)
+       t = -1.0_RP / a(k,k)
        a(k+1:n,k) = a(k+1:n,k) * t
        !
        !  Row elimination with column indexing.
@@ -248,7 +248,7 @@ contains
 
     ipvt(n) = n
 
-    if ( a(n,n) == 0.0D+00 ) then
+    if ( a(n,n) == 0.0_RP ) then
        info = n
     end if
 

@@ -16,7 +16,6 @@ module wathen_problem_mod
   -6.0, 20.0, -8.0, 16.0, -8.0, 20.0, -6.0, 32.0 ], &
   [8, 8] )
 
-
   public :: wathen_problem_t
   type wathen_problem_t
     private
@@ -59,23 +58,11 @@ contains
     integer(IP)            , intent(inout) :: seed
     class(matrix_t)        , intent(inout) :: a
 
-    ! Esta mierda hay que hacerla bien!!!
-    real ( kind = 8 ), dimension ( 8, 8 ), save :: em =  reshape ( [ &
-    6.0, -6.0,  2.0, -8.0,  3.0, -8.0,  2.0, -6.0, &
-    -6.0, 32.0, -6.0, 20.0, -8.0, 16.0, -8.0, 20.0, &
-    2.0, -6.0,  6.0, -6.0,  2.0, -8.0,  3.0, -8.0, &
-    -8.0, 20.0, -6.0, 32.0, -6.0, 20.0, -8.0, 16.0, &
-    3.0, -8.0,  2.0, -6.0,  6.0, -6.0,  2.0, -8.0, &
-    -8.0, 16.0, -8.0, 20.0, -6.0, 32.0, -6.0, 20.0, &
-    2.0, -8.0,  3.0, -8.0,  2.0, -6.0,  6.0, -6.0, &
-    -6.0, 20.0, -8.0, 16.0, -8.0, 20.0, -6.0, 32.0 ], &
-    [ 8, 8 ] )
     integer(IP) :: i
     integer(IP) :: j
     integer(IP) :: kcol
     integer(IP) :: krow
     integer(IP) :: node(8)
-    !real ( kind = 8 ) r8_uniform_01
     real ( kind = 8 ) rho
 
     do j = 1, this%ny
@@ -90,7 +77,7 @@ contains
         node(7) = node(5) + 2
         node(8) = node(4) + 1
 
-        rho = 100.0D+00 * r8_uniform_01 ( seed )
+        rho = 100.0_RP * r8_uniform_01 ( seed )
 
         do krow = 1, 8
           do kcol = 1, 8
@@ -271,7 +258,7 @@ contains
     ml = 3 * nx + 4
     mu = 3 * nx + 4
 
-    a(1:9*nx+13,1:n) = 0.0D+00
+    a(1:9*nx+13,1:n) = 0.0_RP
 
     do j = 1, ny
       do i = 1, nx
@@ -285,7 +272,7 @@ contains
         node(7) = node(5) + 2
         node(8) = node(4) + 1
 
-        rho = 100.0D+00 * r8_uniform_01 ( seed )
+        rho = 100.0_RP * r8_uniform_01 ( seed )
 
         do krow = 1, 8
           do kcol = 1, 8
@@ -401,7 +388,7 @@ contains
     integer(IP) :: node(8)
     real(RP) :: rho
 
-    a(1:n,1:n) = 0.0D+00
+    a(1:n,1:n) = 0.0_RP
 
     do j = 1, ny
       do i = 1, nx
@@ -415,7 +402,7 @@ contains
         node(7) = node(5) + 2
         node(8) = node(4) + 1
 
-        rho = 100.0D+00 * r8_uniform_01 ( seed )
+        rho = 100.0_RP * r8_uniform_01 ( seed )
 
         do krow = 1, 8
           do kcol = 1, 8
@@ -595,7 +582,7 @@ contains
 
     row(1:nz_num) = 0
     col(1:nz_num) = 0
-    a(1:nz_num) = 0.0D+00
+    a(1:nz_num) = 0.0_RP
 
     k = 0
     do j = 1, ny
@@ -609,7 +596,7 @@ contains
         node(7) = node(5) + 2
         node(8) = node(4) + 1
 
-        rho = 100.0D+00 * r8_uniform_01 ( seed )
+        rho = 100.0_RP * r8_uniform_01 ( seed )
         do krow = 1, 8
           do kcol = 1, 8
             k = k + 1

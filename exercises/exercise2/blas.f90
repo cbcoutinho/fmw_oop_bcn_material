@@ -1,5 +1,5 @@
 module blas_mod
-! Implementation or interfaces to BLAS functions
+  ! Implementation or interfaces to BLAS functions
   use types_mod, only: IP, RP
   implicit none
   private
@@ -71,39 +71,39 @@ contains
     idamax = 0
 
     if ( n < 1 .or. incx <= 0 ) then
-       return
+      return
     end if
 
     idamax = 1
 
     if ( n == 1 ) then
-       return
+      return
     end if
 
     if ( incx == 1 ) then
 
-       dmax = abs ( dx(1) )
+      dmax = abs ( dx(1) )
 
-       do i = 2, n
-          if ( dmax < abs ( dx(i) ) ) then
-             idamax = i
-             dmax = abs ( dx(i) )
-          end if
-       end do
+      do i = 2, n
+        if ( dmax < abs ( dx(i) ) ) then
+          idamax = i
+          dmax = abs ( dx(i) )
+        end if
+      end do
 
     else
 
-       ix = 1
-       dmax = abs ( dx(1) )
-       ix = ix + incx
+      ix = 1
+      dmax = abs ( dx(1) )
+      ix = ix + incx
 
-       do i = 2, n
-          if ( dmax < abs ( dx(ix) ) ) then
-             idamax = i
-             dmax = abs ( dx(ix) )
-          end if
-          ix = ix + incx
-       end do
+      do i = 2, n
+        if ( dmax < abs ( dx(ix) ) ) then
+          idamax = i
+          dmax = abs ( dx(ix) )
+        end if
+        ix = ix + incx
+      end do
 
     end if
 

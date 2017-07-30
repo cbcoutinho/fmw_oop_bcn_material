@@ -151,7 +151,7 @@ contains
     integer(IP) :: jhi
     integer(IP) :: jlo
 
-    b(1:m) = 0.0D+00
+    b(1:m) = 0.0_RP
 
     do i = 1, n
        jlo = max ( 1, i - ml )
@@ -217,7 +217,7 @@ contains
     !
     !    Output, integer(ip) :: INFO, error flag.
     !    0, normal value.
-    !    K, if U(K,K) == 0.0D+00.  This is not an error condition for this
+    !    K, if U(K,K) == 0.0_RP.  This is not an error condition for this
     !      subroutine, but it does indicate that DGBSL will divide by zero if
     !      called.  Use RCOND in DGBCO for a reliable indication of singularity.
     !
@@ -256,7 +256,7 @@ contains
     do jz = j0, j1
        i0 = m + 1 - jz
        do i = i0, ml
-          abd(i,jz) = 0.0D+00
+          abd(i,jz) = 0.0_RP
        end do
     end do
 
@@ -271,7 +271,7 @@ contains
        !
        jz = jz + 1
        if ( jz <= n ) then
-          abd(1:ml,jz) = 0.0D+00
+          abd(1:ml,jz) = 0.0_RP
        end if
        !
        !  Find L = pivot index.
@@ -282,7 +282,7 @@ contains
        !
        !  Zero pivot implies this column already triangularized.
        !
-       if ( abd(l,k) == 0.0D+00 ) then
+       if ( abd(l,k) == 0.0_RP ) then
 
           info = k
           !
@@ -298,7 +298,7 @@ contains
           !
           !  Compute multipliers.
           !
-          t = -1.0D+00 / abd(m,k)
+          t = -1.0_RP / abd(m,k)
           call dscal ( lm, t, abd(m+1,k), 1 )
           !
           !  Row elimination with column indexing.
@@ -323,7 +323,7 @@ contains
 
     ipvt(n) = n
 
-    if ( abd(m,n) == 0.0D+00 ) then
+    if ( abd(m,n) == 0.0_RP ) then
        info = n
     end if
 
@@ -561,7 +561,7 @@ contains
        return
     end if
 
-    if ( da == 0.0D+00 ) then
+    if ( da == 0.0_RP ) then
        return
     end if
     !
@@ -678,8 +678,8 @@ contains
     integer(IP) :: iy
     integer(IP) :: m
 
-    ddot = 0.0D+00
-    dtemp = 0.0D+00
+    ddot = 0.0_RP
+    dtemp = 0.0_RP
 
     if ( n <= 0 ) then
        return
