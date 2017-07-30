@@ -1,11 +1,12 @@
 #include "mcheck.i90"
 module sparse_matrix_mod
-  use types_mod
-  use blas_mod
-  use matrix_mod
+  use types_mod,  only: IP, RP
+  use blas_mod,   only: idamax
+  use matrix_mod, only: matrix_t
   implicit none
   private
 
+  public :: sparse_matrix_t
   type, extends(matrix_t) :: sparse_matrix_t
      private
      integer(ip) :: nz      = -1
@@ -20,10 +21,9 @@ module sparse_matrix_mod
      procedure :: backsolve => sparse_matrix_backsolve
      procedure :: free      => sparse_matrix_free
   end type sparse_matrix_t
-  public :: sparse_matrix_t
 
 contains
- 
+
   subroutine sparse_matrix_create(this,n,ml,mu,nz)
     class(sparse_matrix_t), intent(inout) :: this
     integer(ip)           , intent(in)    :: n
@@ -39,7 +39,7 @@ contains
     this%cursor = 1
   end subroutine sparse_matrix_create
 
-  subroutine sparse_matrix_assembly(this,i,j,a) 
+  subroutine sparse_matrix_assembly(this,i,j,a)
     implicit none
     class(sparse_matrix_t), intent(inout) :: this
     integer(ip)           , intent(in)    :: i,j
@@ -51,7 +51,7 @@ contains
     this%cursor = this%cursor + 1
   end subroutine sparse_matrix_assembly
 
-  subroutine sparse_matrix_apply(this,x,y) 
+  subroutine sparse_matrix_apply(this,x,y)
     implicit none
     class(sparse_matrix_t), intent(in) :: this
     real(rp)       , intent(in)       :: x(:)
@@ -59,7 +59,7 @@ contains
     call mv_st ( this%get_size(), this%get_size(), this%nz, this%row, this%col, this%a, x, y)
   end subroutine sparse_matrix_apply
 
-  subroutine sparse_matrix_factorize(this, factors, pivots) 
+  subroutine sparse_matrix_factorize(this, factors, pivots)
     implicit none
     class(sparse_matrix_t)       , intent(in)    :: this
     class(matrix_t), allocatable, intent(inout) :: factors
@@ -67,7 +67,7 @@ contains
     write(*,*) 'Sparse matrix factorization not implemented'
   end subroutine sparse_matrix_factorize
 
-  subroutine sparse_matrix_backsolve(this,pivots,rhs,x) 
+  subroutine sparse_matrix_backsolve(this,pivots,rhs,x)
     class(sparse_matrix_t), intent(in)    :: this
     integer(ip)    , intent(in)    :: pivots(:)
     real(rp)       , intent(in)    :: rhs(:)
@@ -75,16 +75,16 @@ contains
     write(*,*) 'Sparse matrix backsolve not implemented'
   end subroutine sparse_matrix_backsolve
 
-  subroutine sparse_matrix_free(this) 
+  subroutine sparse_matrix_free(this)
     class(sparse_matrix_t), intent(inout)    :: this
     call this%set_size(-1)
     this%nz = -1
     this%cursor = -1
-    if (allocated(this%row)) deallocate(this%row) 
+    if (allocated(this%row)) deallocate(this%row)
     if (allocated(this%col)) deallocate(this%col)
     if (allocated(this%a)) deallocate(this%a)
   end subroutine sparse_matrix_free
-  
+
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !
 ! Legacy code
@@ -115,7 +115,7 @@ contains
     !
     !    Input, integer(ip) :: NZ_NUM, the number of nonzero values.
     !
-    !    Input, integer(ip) :: ROW(NZ_NUM), COL(NZ_NUM), the row and 
+    !    Input, integer(ip) :: ROW(NZ_NUM), COL(NZ_NUM), the row and
     !    column indices.
     !
     !    Input, real(RP) A(NZ_NUM), the nonzero values in the matrix.
@@ -133,7 +133,7 @@ contains
     integer(IP), intent(in)  :: col(nz_num)
     real(RP)   , intent(in)  :: a(nz_num)
     real(RP)   , intent(out) :: b(m)
-    
+
     integer(IP) :: k
     real(RP) :: x(n)
 

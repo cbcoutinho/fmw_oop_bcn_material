@@ -1,8 +1,8 @@
 module blas_mod
 ! Implementation or interfaces to BLAS functions
-  use types_mod
+  use types_mod, only: IP, RP
   implicit none
-  private 
+  private
   public :: idamax
 
 contains
@@ -19,7 +19,7 @@ contains
     !
     !  Licensing:
     !
-    !    This code is distributed under the GNU LGPL license. 
+    !    This code is distributed under the GNU LGPL license.
     !
     !  Modified:
     !
@@ -27,7 +27,7 @@ contains
     !
     !  Author:
     !
-    !    Original FORTRAN77 version by Charles Lawson, Richard Hanson, 
+    !    Original FORTRAN77 version by Charles Lawson, Richard Hanson,
     !    David Kincaid, Fred Krogh.
     !    FORTRAN90 version by John Burkardt.
     !
@@ -40,7 +40,7 @@ contains
     !    LC: QA214.L56.
     !
     !    Charles Lawson, Richard Hanson, David Kincaid, Fred Krogh,
-    !    Algorithm 539, 
+    !    Algorithm 539,
     !    Basic Linear Algebra Subprograms for Fortran Usage,
     !    ACM Transactions on Mathematical Software,
     !    Volume 5, Number 3, September 1979, pages 308-323.
@@ -51,10 +51,10 @@ contains
     !
     !    Input, real(RP) DX(*), the vector to be examined.
     !
-    !    Input, integer(ip) :: INCX, the increment between successive 
+    !    Input, integer(ip) :: INCX, the increment between successive
     !    entries of SX.
     !
-    !    Output, integer(ip) :: IDAMAX, the index of the element of SX of 
+    !    Output, integer(ip) :: IDAMAX, the index of the element of SX of
     !    maximum absolute value.
     !
     implicit none
@@ -63,7 +63,7 @@ contains
     real(RP)   , intent(in) :: dx(*)
     integer(IP), intent(in) :: incx
     integer(IP)             :: idamax
-    
+
     real(RP) :: dmax
     integer(IP) :: i
     integer(IP) :: ix

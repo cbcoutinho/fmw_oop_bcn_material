@@ -1,8 +1,8 @@
 module random_numbers_mod
-  use types_mod
+  use types_mod, only: IP, RP
   implicit none
   private
-  
+
   integer(IP), parameter :: I4_HUGE = 2147483647
 
   public :: r8_uniform_01, r8vec_uniform_01
@@ -85,7 +85,7 @@ contains
     integer(IP), intent(inout) :: seed
     real(RP)                   :: r8_uniform_01
     integer(IP) :: k
-    
+
     if ( seed == 0 ) then
        write ( *, '(a)' ) ' '
        write ( *, '(a)' ) 'R8_UNIFORM_01 - Fatal error!'
@@ -165,7 +165,7 @@ contains
     integer(IP) :: i
     integer(IP) :: j
     integer(IP) :: k
-    
+
 
     do j = 1, n
 
@@ -221,9 +221,9 @@ contains
     integer(IP)      , intent(in) :: n
     real(RP)         , intent(in) :: a(n)
     character (len=*), intent(in) :: title
-    
+
     integer(IP) :: i
-    
+
     write ( *, '(a)' ) ' '
     write ( *, '(a)' ) trim ( title )
     write ( *, '(a)' ) ' '

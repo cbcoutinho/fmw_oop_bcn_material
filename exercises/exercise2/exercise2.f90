@@ -1,12 +1,14 @@
 #include "mcheck.i90"
 program exercise2
-  use types_mod
-  use random_numbers_mod
-  use wathen_problem_mod
-  use matrix_mod
-  use matrix_factory_mod
-  use solver_mod
-  use solver_factory_mod
+  use types_mod,          only: IP, RP
+  use random_numbers_mod, only: r8_uniform_01, r8vec_uniform_01
+  use wathen_problem_mod, only: wathen_problem_t
+  use matrix_mod,         only: matrix_t
+  use matrix_factory_mod, only: matrix_factory, &
+                              & FULL_MATRIX, BAND_MATRIX, SYM_BAND_MATRIX, SPARSE_MATRIX
+  use solver_mod,         only: solver_t
+  use solver_factory_mod, only: solver_factory, &
+                              & DIR_SOLVE, CG_SOLVE
 
   implicit none
   class(matrix_t), allocatable :: A

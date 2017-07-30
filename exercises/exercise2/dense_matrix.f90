@@ -1,11 +1,12 @@
 #include "mcheck.i90"
 module dense_matrix_mod
-  use types_mod
-  use blas_mod
-  use matrix_mod
+  use types_mod,  only: IP, RP
+  use blas_mod,   only: idamax
+  use matrix_mod, only: matrix_t
   implicit none
   private
 
+  public :: dense_matrix_t
   type, extends(matrix_t) :: dense_matrix_t
      private
      real(rp), allocatable :: a(:,:)
@@ -17,10 +18,9 @@ module dense_matrix_mod
      procedure :: backsolve => dense_matrix_backsolve
      procedure :: free      => dense_matrix_free
   end type dense_matrix_t
-  public :: dense_matrix_t
 
 contains
-  
+
   subroutine dense_matrix_create(this,n,ml,mu,nz)
     class(dense_matrix_t), intent(inout) :: this
     integer(ip)          , intent(in)    :: n
@@ -31,7 +31,7 @@ contains
     this%a = 0.0_rp
   end subroutine dense_matrix_create
 
-  subroutine dense_matrix_assembly(this,i,j,a) 
+  subroutine dense_matrix_assembly(this,i,j,a)
     implicit none
     class(dense_matrix_t), intent(inout) :: this
     integer(ip)    , intent(in)    :: i,j
@@ -39,7 +39,7 @@ contains
     this%a(i,j) = this%a(i,j) + a
   end subroutine dense_matrix_assembly
 
-  subroutine dense_matrix_apply(this,x,y) 
+  subroutine dense_matrix_apply(this,x,y)
     implicit none
     class(dense_matrix_t), intent(in) :: this
     real(rp)       , intent(in)       :: x(:)
@@ -47,18 +47,18 @@ contains
     call mv_ge ( this%get_size(), this%get_size(), this%a, x, y )
   end subroutine dense_matrix_apply
 
-  subroutine dense_matrix_factorize(this, factors, pivots) 
+  subroutine dense_matrix_factorize(this, factors, pivots)
     implicit none
     class(dense_matrix_t)       , intent(in)    :: this
     class(matrix_t), allocatable, intent(inout) :: factors
     integer(ip)                 , intent(inout) :: pivots(:)
     integer(ip) :: info
-    
+
     if (allocated(factors)) then
       call factors%free()
       deallocate(factors)
-    end if  
-    
+    end if
+
     allocate(dense_matrix_t :: factors)
     select type(factors)
     type is(dense_matrix_t)
@@ -70,7 +70,7 @@ contains
     end select
   end subroutine dense_matrix_factorize
 
-  subroutine dense_matrix_backsolve(this,pivots,rhs,x) 
+  subroutine dense_matrix_backsolve(this,pivots,rhs,x)
     class(dense_matrix_t), intent(in)    :: this
     integer(ip)          , intent(in)    :: pivots(:)
     real(rp)             , intent(in)    :: rhs(:)
@@ -78,13 +78,13 @@ contains
     x = rhs
     call dgesl ( this%a, this%get_size(), this%get_size(), pivots, x, 0 )
   end subroutine dense_matrix_backsolve
-  
-  subroutine dense_matrix_free(this) 
+
+  subroutine dense_matrix_free(this)
     class(dense_matrix_t), intent(inout) :: this
     call this%set_size(-1)
     if (allocated(this%a)) deallocate(this%a)
   end subroutine dense_matrix_free
-  
+
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !
 ! Legacy code
@@ -99,7 +99,7 @@ contains
     !
     !  Discussion:
     !
-    !    The R8GE storage format is used for a general M by N matrix.  A storage 
+    !    The R8GE storage format is used for a general M by N matrix.  A storage
     !    space is made for each entry.  The two dimensional logical
     !    array can be thought of as a vector of M*N entries, starting with
     !    the M entries in the column 1, then the M entries in column 2
@@ -110,7 +110,7 @@ contains
     !
     !  Licensing:
     !
-    !    This code is distributed under the GNU LGPL license. 
+    !    This code is distributed under the GNU LGPL license.
     !
     !  Modified:
     !
@@ -196,7 +196,7 @@ contains
     integer(IP) , intent(in)    :: n
     integer(IP) , intent(out)   :: ipvt(n)
     integer(IP) , intent(out)   :: info
-    
+
     integer(IP) :: j
     integer(IP) :: k
     integer(IP) :: l
@@ -254,7 +254,7 @@ contains
 
     return
   end subroutine dgefa
-  
+
   subroutine dgesl ( a, lda, n, ipvt, b, job )
 
     !*****************************************************************************80
@@ -319,7 +319,7 @@ contains
     integer(IP), intent(in)    :: ipvt(n)
     real(RP)   , intent(inout) :: b(n)
     integer(IP), intent(in)    :: job
-    
+
     integer(IP) :: k
     integer(IP) :: l
     real(RP)    :: t

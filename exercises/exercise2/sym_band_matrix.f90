@@ -1,63 +1,63 @@
 #include "mcheck.i90"
-module band_matrix_mod
+module sym_band_matrix_mod
   use types_mod,  only: IP, RP
   use blas_mod,   only: idamax
   use matrix_mod, only: matrix_t
   implicit none
   private
 
-  public :: band_matrix_t
-  type, extends(matrix_t) :: band_matrix_t
+  public :: sym_band_matrix_t
+  type, extends(matrix_t) :: sym_band_matrix_t
      private
      real(rp), allocatable :: a(:,:)
      integer(ip) :: ml  = -1
      integer(ip) :: mu  = -1
      integer(ip) :: lda = -1
    contains
-     procedure :: create    => band_matrix_create
-     procedure :: assembly  => band_matrix_assembly
-     procedure :: apply     => band_matrix_apply
-     procedure :: factorize => band_matrix_factorize
-     procedure :: backsolve => band_matrix_backsolve
-     procedure :: free      => band_matrix_free
-  end type band_matrix_t
+     procedure :: create    => sym_band_matrix_create
+     procedure :: assembly  => sym_band_matrix_assembly
+     procedure :: apply     => sym_band_matrix_apply
+     procedure :: factorize => sym_band_matrix_factorize
+     procedure :: backsolve => sym_band_matrix_backsolve
+     procedure :: free      => sym_band_matrix_free
+  end type sym_band_matrix_t
 
 contains
 
-  subroutine band_matrix_create(this,n,ml,mu,nz)
-    class(band_matrix_t) , intent(inout) :: this
+  subroutine sym_band_matrix_create(this,n,ml,mu,nz)
+    class(sym_band_matrix_t) , intent(inout) :: this
     integer(ip)          , intent(in)    :: n
     integer(ip), optional, intent(in)    :: ml,mu,nz
     call this%free()
     call this%set_size(n)
-    mcheck(present(ml),"ml dummy argument required by band_matrix_create")
-    mcheck(present(mu),"mu dummy argument required by band_matrix_create")
+    mcheck(present(ml),"ml dummy argument required by sym_band_matrix_create")
+    mcheck(present(mu),"mu dummy argument required by sym_band_matrix_create")
     this%ml = ml
     this%mu = mu
     this%lda = 2*ml+mu+1
     allocate ( this%a(1:this%lda,1:n) )
     this%a = 0.0_rp
-  end subroutine band_matrix_create
+  end subroutine sym_band_matrix_create
 
-  subroutine band_matrix_assembly(this,i,j,a)
+  subroutine sym_band_matrix_assembly(this,i,j,a)
     implicit none
-    class(band_matrix_t), intent(inout) :: this
+    class(sym_band_matrix_t), intent(inout) :: this
     integer(ip)         , intent(in)    :: i,j
     real(rp)            , intent(in)    :: a
     this%a(i-j+this%ml+this%mu+1,j) = this%a(i-j+this%ml+this%mu+1,j) + a
-  end subroutine band_matrix_assembly
+  end subroutine sym_band_matrix_assembly
 
-  subroutine band_matrix_apply(this,x,y)
+  subroutine sym_band_matrix_apply(this,x,y)
     implicit none
-    class(band_matrix_t), intent(in)    :: this
+    class(sym_band_matrix_t), intent(in)    :: this
     real(rp)            , intent(in)    :: x(:)
     real(rp)            , intent(inout) :: y(:)
     call mv_gb ( this%get_size(), this%get_size(), this%ml, this%mu, this%a, x, y )
-  end subroutine band_matrix_apply
+  end subroutine sym_band_matrix_apply
 
-  subroutine band_matrix_factorize(this, factors, pivots)
+  subroutine sym_band_matrix_factorize(this, factors, pivots)
     implicit none
-    class(band_matrix_t)        , intent(in)    :: this
+    class(sym_band_matrix_t)        , intent(in)    :: this
     class(matrix_t), allocatable, intent(inout) :: factors
     integer(ip)                 , intent(inout) :: pivots(:)
     integer(ip) :: info, lda
@@ -67,34 +67,34 @@ contains
       deallocate(factors)
     end if
 
-    allocate(band_matrix_t :: factors)
+    allocate(sym_band_matrix_t :: factors)
     select type(factors)
-    type is(band_matrix_t)
+    type is(sym_band_matrix_t)
        call factors%create(this%get_size(),this%ml,this%mu)
        factors%a = this%a
        call dgbfa ( factors%a, this%lda, this%get_size(), this%ml, this%mu, pivots, info )
        mcheck(info==0, 'Error in band factorization')
     class default
     end select
-  end subroutine band_matrix_factorize
+  end subroutine sym_band_matrix_factorize
 
-  subroutine band_matrix_backsolve(this,pivots,rhs,x)
-    class(band_matrix_t), intent(in)    :: this
+  subroutine sym_band_matrix_backsolve(this,pivots,rhs,x)
+    class(sym_band_matrix_t), intent(in)    :: this
     integer(ip)         , intent(in)    :: pivots(:)
     real(rp)            , intent(in)    :: rhs(:)
     real(rp)            , intent(inout) :: x(:)
     x = rhs
     call dgbsl ( this%a, this%lda, this%get_size(), this%ml, this%mu, pivots, x, 0 )
-  end subroutine band_matrix_backsolve
+  end subroutine sym_band_matrix_backsolve
 
-  subroutine band_matrix_free(this)
-    class(band_matrix_t), intent(inout) :: this
+  subroutine sym_band_matrix_free(this)
+    class(sym_band_matrix_t), intent(inout) :: this
     call this%set_size(-1)
     this%ml = -1
     this%mu = -1
     this%lda = -1
     if (allocated(this%a)) deallocate(this%a)
-  end subroutine band_matrix_free
+  end subroutine sym_band_matrix_free
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !
@@ -825,4 +825,4 @@ contains
     return
   end subroutine dscal
 
-end module band_matrix_mod
+end module sym_band_matrix_mod

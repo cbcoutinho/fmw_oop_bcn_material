@@ -1,9 +1,9 @@
 #include "mcheck.i90"
 module solver_factory_mod
-  use types_mod
-  use solver_mod
-  use iterative_solver_mod
-  use direct_solver_mod
+  use types_mod,            only: IP, RP
+  use solver_mod,           only: solver_t
+  use iterative_solver_mod, only: cg_solver_t
+  use direct_solver_mod,    only: direct_solver_t
 
   implicit none
   private

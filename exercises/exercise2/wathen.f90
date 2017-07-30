@@ -1,7 +1,7 @@
 module wathen_problem_mod
-  use types_mod
-  use random_numbers_mod
-  use matrix_mod
+  use types_mod,          only: IP, RP
+  use random_numbers_mod, only: r8_uniform_01, r8vec_uniform_01
+  use matrix_mod,         only: matrix_t
   implicit none
   private
 
@@ -17,6 +17,7 @@ module wathen_problem_mod
   [8, 8] )
 
 
+  public :: wathen_problem_t
   type wathen_problem_t
     private
     integer(IP) :: nx,ny
@@ -24,7 +25,6 @@ module wathen_problem_mod
     procedure :: setup    => wathen_setup
     procedure :: assembly => wathen_fill
   end type wathen_problem_t
-  public :: wathen_problem_t
 
 contains
 
